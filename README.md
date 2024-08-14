@@ -1,2 +1,1 @@
-write to csv
-
+Dump slices of structs into files
