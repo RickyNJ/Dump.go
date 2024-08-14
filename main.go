@@ -2,33 +2,29 @@ package main
 
 import (
  "fmt"
- "testing"
  "reflect"
 ) 
 
 
 
-type Person struct {
-    Name string
-    Age int
-}
 
-func Printnames(*Person) []string {
-    return []string{"wrong"}
+func GetHeaders [T any](items []T) []string {
+    if items == nil {
+        return []string{}
+    }
+
+    headers := []string{}
+
+    val := reflect.ValueOf(items[0]).Elem()
+    for i:=0; i<val.NumField();i++{
+        headers = append(headers,val.Type().Field(i).Name )
+    }
+
+    return headers
 }
 
 func main() {
-    fmt.Println("Hi there")
+    fmt.Print("hi")
 }
 
 
-func test_Printnames(t *testing.T){
-    a := &Person{Name: "Ricky", Age: 24}
-
-    ans := Printnames(a)
-    want := []string{"Name", "Age"}
-
-    if reflect.DeepEqual(ans, want){
-        t.Error("didnt work")
-    }
-}
