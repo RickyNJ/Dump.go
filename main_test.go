@@ -40,7 +40,7 @@ func TestPrintHeadersClasses(t *testing.T) {
 }
 
 func TestFileCreation(t *testing.T) {
-    CreateFile("test")
+    CreateFile("test.csv", []string{"ricky", "alice"})
      
     if _, err := os.Stat("test.csv"); os.IsNotExist(err) {
         t.Fatalf("file doesnt exist: %s", err)	
