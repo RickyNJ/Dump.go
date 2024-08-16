@@ -8,48 +8,66 @@ import (
 	"reflect"
 )
 
-func GetHeaders[T any](items []T) []string {
-	if items == nil {
-		return []string{}
-	}
 
+type Bin struct {
+    headers []string
+    file *os.File
+}
+
+func NewBin[T any](fileName string, inputStruct T) Bin {
+    headers := GetHeaders(inputStruct)
+
+    binFile, err := CreateFile(fileName, headers) 
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    return Bin{headers: headers, file: binFile} 
+}
+    
+func GetHeaders[T any](inputStruct T) []string {
 	headers := []string{}
+	structType := reflect.TypeOf(inputStruct)
 
-	val := reflect.ValueOf(items[0]).Elem()
-	for i := 0; i < val.NumField(); i++ {
-		headers = append(headers, val.Type().Field(i).Name)
-	}
+    if structType.Kind() == reflect.Ptr {
+        structType = structType.Elem()
+    }
+
+    if structType.Kind() != reflect.Struct {
+        // TODO CREATE ERROR FOR NOT A STRUCT
+        return headers
+    }
+
+    for i := 0; i < structType.NumField(); i++ {
+        field := structType.Field(i)
+        headers = append(headers, field.Name)
+    }
 
 	return headers
 }
 
 func CreateFile(fileName string, headers []string) (*os.File, error){
-	fileName = fileName + ".csv"
-	f, err := os.Create(fileName)	
+	f, err := os.Create(fileName)
     w := csv.NewWriter(f)
 	w.Write(headers)
 	w.Flush()
-
     return f, err
 }
 
+
 func WriteFile[T any](f *os.File, items []T ) (*os.File, error){
-    
+    return os.Create("f")
 }
 
 
 
 func DumpToCSV[T any](fileName string, items []T) bool {
 	headers := GetHeaders(items)
-
 	f, err  := CreateFile(fileName, headers)
     if err != nil {
         log.Fatalf("Error when creating the file %s", err)
     }
-
     f.Close()
-
-
 	return true
 }
 
