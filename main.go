@@ -14,6 +14,16 @@ type Bin struct {
     file *os.File
 }
 
+//  TODO:
+//  Bin.Toss( data T | []T ) -> if reflect.TypeOf(data) == reflect.TypeOf(self.Data)
+//  if data T -> func writeline[[]strings, os.File(?)] 
+//  if data []T -> while len(data) != 0 -> writeline(data), data.pop?
+//  find way of io.Writer to use streams
+
+//  CAST EVERYTHING TO STRING
+//  maybe think about ways to make modular so that other formats are possible?
+
+
 func NewBin[T any](fileName string, inputStruct T) Bin {
     headers := GetHeaders(inputStruct)
 
