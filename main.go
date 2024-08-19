@@ -24,6 +24,10 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 
     return Bin{headers: headers, file: binFile} 
 }
+
+func (b Bin) Toss(data interface{}){
+
+}
     
 func GetHeaders[T any](inputStruct T) []string {
 	headers := []string{}
