@@ -6,40 +6,61 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strings"
 )
-
-
-type Bin struct {
-    headers []string
-    file *os.File
-}
 
 //  TODO:
 //  Bin.Toss( data T | []T ) -> if reflect.TypeOf(data) == reflect.TypeOf(self.Data)
-//  if data T -> func writeline[[]strings, os.File(?)] 
+//  if data T -> func writeline[[]strings, os.File(?)]
 //  if data []T -> while len(data) != 0 -> writeline(data), data.pop?
+//  ITERATOR?????????
 //  find way of io.Writer to use streams
 
 //  CAST EVERYTHING TO STRING
 //  maybe think about ways to make modular so that other formats are possible?
 
+// total funcs for now
+// NewBin, Toss, getStructFieldNames, createFile,
 
-func NewBin[T any](fileName string, inputStruct T) Bin {
-    headers := GetHeaders(inputStruct)
+type Bin struct {
+    headers []string
+    filepath string
+    filetype string
+}
 
-    binFile, err := CreateFile(fileName, headers) 
-    if err != nil {
-        log.Fatal(err)
+func getFileType(filename string ) string{
+    filename_slice := strings.Split(filename, ".")
+
+    if len(filename_slice) <= 1 {
+        return "please add filetype to the filename"
+    }
+    if filename_slice[len(filename_slice)-1] == "csv" {
+        return "csv"
+    }
+    if filename_slice[len(filename_slice)-1] == "json" {
+        return "json"
     }
 
-    return Bin{headers: headers, file: binFile} 
+    return "unsupported"
 }
 
-func (b Bin) Toss(data interface{}){
+func NewBin[T any](filename string, inputStruct T) Bin {
+    headers := getStructFieldNames(inputStruct)
+    filetype := getFileType(filename)
 
+    if filetype == "csv" {
+        binFile, err := CreateFile(filename, headers) 
+        if err != nil {
+            log.Fatal(err)
+        }
+        binFile.Close()
+    }
+
+
+    return Bin{headers: headers, filepath: filename, filetype: filetype} 
 }
-    
-func GetHeaders[T any](inputStruct T) []string {
+
+func getStructFieldNames[T any](inputStruct T) []string {
 	headers := []string{}
 	structType := reflect.TypeOf(inputStruct)
 
@@ -68,15 +89,8 @@ func CreateFile(fileName string, headers []string) (*os.File, error){
     return f, err
 }
 
-
-func WriteFile[T any](f *os.File, items []T ) (*os.File, error){
-    return os.Create("f")
-}
-
-
-
 func DumpToCSV[T any](fileName string, items []T) bool {
-	headers := GetHeaders(items)
+	headers := getStructFieldNames(items)
 	f, err  := CreateFile(fileName, headers)
     if err != nil {
         log.Fatalf("Error when creating the file %s", err)

@@ -1,3 +1,3 @@
-module github.com/RickyNJ/Cruick
+module github.com/RickyNJ/dump
 
 go 1.22.3
