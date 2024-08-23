@@ -29,46 +29,57 @@ type Bin struct {
     fileType string
 }
  
-func tossSliceCSV (w *csv.Writer, input interface{}) {
-   return 
-}
+// func tossSliceCSV (bin *Bin, w *csv.Writer, input reflect.Kind) {
+//
+//     
+//     for i := 0; i < input.Len(); i++ {
+//         tossCSV(bin, w, input.Index(i))
+//     }
+//
+//     return 
+// }
 
-func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) {
+func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) { 
+
+
     newLine := []string{}
-
     for _, v := range bin.headers {
-        fmt.Println(input.FieldByName(v))
         newLine = append(newLine, input.FieldByName(v).String())
     }
 
+    fmt.Printf("\nthis is the filepath: %v", bin.filePath)
     fmt.Println(newLine)
-
 
     w.Write(newLine)
     w.Flush()
+    fmt.Println(w.Error())
 }
 
 func (bin *Bin) Toss (input interface{}) {
-    f, err := os.Open(bin.filePath)
+    f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
         panic("Couldnt open file")
     }
 
-    v := reflect.TypeOf(input)
-    b := bin.structType
     w := csv.NewWriter(f)
+    t := reflect.TypeOf(input)
+    b := bin.structType
 
-    if v == b {
-        fmt.Print("the types are the same running tosscsv")
-        tossCSV(bin, w, reflect.ValueOf(input))
-    }
-    if v.Kind() == reflect.Slice {
-        fmt.Print("why is it running this ")
-        if v.Elem() == b {
-            tossSliceCSV(w, input)
+    switch reflect.ValueOf(input).Kind(){
+    case reflect.Struct:
+        if t == b {
+            tossCSV(bin, w, reflect.ValueOf(input))
         }
+    case reflect.Slice:
+        s := reflect.ValueOf(input)
+        for i := 0; i < s.Len(); i++ {
+            tossCSV(bin, w, s.Index(i))
+        }
+
     }
+
 }
+
 
 func getFileType(filename string ) string{
     filename_slice := strings.Split(filename, ".")
@@ -87,16 +98,15 @@ func getFileType(filename string ) string{
 }
 
 
-
-
-
 func createFile(fileName string, headers []string) (*os.File, error){
 	f, err := os.Create(fileName)
     w := csv.NewWriter(f)
 	w.Write(headers)
 	w.Flush()
+    f.Close()
     return f, err
 }
+
 
 func getStructFieldNames[T any](inputStruct T) []string {
 	headers := []string{}
@@ -121,11 +131,10 @@ func NewBin[T any](fileName string, inputStruct T) *Bin {
     fileType := getFileType(fileName)
 
     if fileType == "csv" {
-        binFile, err := createFile(fileName, headers) 
+        _, err := createFile(fileName, headers) 
         if err != nil {
             log.Fatal(err)
         }
-        binFile.Close()
     }
 
     return &Bin{
