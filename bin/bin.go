@@ -2,7 +2,7 @@ package bin
 
 import (
 	"encoding/csv"
-	"io"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -29,15 +29,23 @@ type Bin struct {
     fileType string
 }
  
-func tossSliceCSV (f *os.File, input interface{}) {
+func tossSliceCSV (w *csv.Writer, input interface{}) {
    return 
 }
 
-func tossCSV (w *io.Writer, input reflect.Value) {
+func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) {
     newLine := []string{}
 
-    
-    return
+    for _, v := range bin.headers {
+        fmt.Println(input.FieldByName(v))
+        newLine = append(newLine, input.FieldByName(v).String())
+    }
+
+    fmt.Println(newLine)
+
+
+    w.Write(newLine)
+    w.Flush()
 }
 
 func (bin *Bin) Toss (input interface{}) {
@@ -46,25 +54,20 @@ func (bin *Bin) Toss (input interface{}) {
         panic("Couldnt open file")
     }
 
-    if bin.fileType == "csv" {
-       
-    }
-    
-
     v := reflect.TypeOf(input)
     b := bin.structType
-    
+    w := csv.NewWriter(f)
+
     if v == b {
-        w := csv.NewWriter(f)
-        tossCSV(w, reflect.ValueOf(input))
+        fmt.Print("the types are the same running tosscsv")
+        tossCSV(bin, w, reflect.ValueOf(input))
     }
     if v.Kind() == reflect.Slice {
+        fmt.Print("why is it running this ")
         if v.Elem() == b {
-            tossSliceCSV(f, input)
+            tossSliceCSV(w, input)
         }
     }
-
-    return 
 }
 
 func getFileType(filename string ) string{
@@ -83,15 +86,33 @@ func getFileType(filename string ) string{
     return "unsupported"
 }
 
-func NewBin[T any](fileName string, inputStruct T) *Bin {
 
-    v := reflect.ValueOf(inputStruct)
 
-    for v.Kind() == reflect.Ptr {
-        v = v.Elem()
+
+
+func createFile(fileName string, headers []string) (*os.File, error){
+	f, err := os.Create(fileName)
+    w := csv.NewWriter(f)
+	w.Write(headers)
+	w.Flush()
+    return f, err
+}
+
+func getStructFieldNames[T any](inputStruct T) []string {
+	headers := []string{}
+	structType := reflect.TypeOf(inputStruct)
+
+    for i := 0; i < structType.NumField(); i++ {
+        field := structType.Field(i)
+        headers = append(headers, field.Name)
     }
 
-    if v.Kind() != reflect.Struct {
+	return headers
+}
+
+func NewBin[T any](fileName string, inputStruct T) *Bin {
+    t := reflect.TypeOf(inputStruct)
+    if t.Kind() != reflect.Struct {
         panic("input is not a struct")
     }
 
@@ -100,7 +121,7 @@ func NewBin[T any](fileName string, inputStruct T) *Bin {
     fileType := getFileType(fileName)
 
     if fileType == "csv" {
-        binFile, err := CreateFile(fileName, headers) 
+        binFile, err := createFile(fileName, headers) 
         if err != nil {
             log.Fatal(err)
         }
@@ -114,25 +135,3 @@ func NewBin[T any](fileName string, inputStruct T) *Bin {
             fileType: fileType,
         } 
 }
-
-func getStructFieldNames[T any](inputStruct T) []string {
-	headers := []string{}
-	structType := reflect.TypeOf(inputStruct)
-    structType = structType.Elem()
-
-    for i := 0; i < structType.NumField(); i++ {
-        field := structType.Field(i)
-        headers = append(headers, field.Name)
-    }
-
-	return headers
-}
-
-func CreateFile(fileName string, headers []string) (*os.File, error){
-	f, err := os.Create(fileName)
-    w := csv.NewWriter(f)
-	w.Write(headers)
-	w.Flush()
-    return f, err
-}
-

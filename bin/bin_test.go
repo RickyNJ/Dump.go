@@ -32,28 +32,6 @@ func initTests() (Person, []*Person) {
     "Alice", Age: 26}}
 }
 
-func TestToss(t *testing.T) {
-    b := NewBin("people.csv", PersonStrings{Name: "Ricky", Age: "23"})
-    b.Toss(Person{Name: "hi", Age: 21})
-    
-    file, err := os.Open(b.filepath)
-    if err != nil {
-        t.Errorf("file doesnt exist %v", err)
-    }
-
-    r := csv.NewReader(file)
-
-    lines, err := r.ReadAll()
-    if err != nil {
-        t.Errorf("Couldnt read file %v", err)
-    }
-    want := [][]string{{"Name", "Age"}, {"Ricky", "23"}}
-    if !reflect.DeepEqual(lines, want){
-        t.Fatalf("%v and %v are not equal", lines, want)
-    }
-}
-
-
 func TestNewBinCreation(t *testing.T) {
     filename := "people.csv"
     defer os.Remove(filename)
@@ -76,6 +54,29 @@ func TestNewBinCreation(t *testing.T) {
     }
 
 }
+func TestToss(t *testing.T) {
+    b := NewBin("people.csv", PersonStrings{})
+    b.Toss(PersonStrings{Name: "hi", Age: "21"})
+    
+    file, err := os.Open(b.filePath)
+    if err != nil {
+        t.Errorf("file doesnt exist %v", err)
+    }
+
+    r := csv.NewReader(file)
+
+    lines, err := r.ReadAll()
+    if err != nil {
+        t.Errorf("Couldnt read file %v", err)
+    }
+    want := [][]string{{"Name", "Age"}, {"hi", "21"}}
+    if !reflect.DeepEqual(lines, want){
+        t.Fatalf("%v and %v are not equal", lines, want)
+    }
+}
+
+
+
 
 
 func TestPrintNamesPerson(t *testing.T) {
