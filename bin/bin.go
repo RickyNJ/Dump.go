@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -28,28 +29,25 @@ type Bin struct {
     filePath string
     fileType string
 }
+
  
-// func tossSliceCSV (bin *Bin, w *csv.Writer, input reflect.Kind) {
-//
-//     
-//     for i := 0; i < input.Len(); i++ {
-//         tossCSV(bin, w, input.Index(i))
-//     }
-//
-//     return 
-// }
 
 func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) { 
-
-
     newLine := []string{}
     for _, v := range bin.headers {
-        newLine = append(newLine, input.FieldByName(v).String())
+        value := input.FieldByName(v)
+        fmt.Println(value.Kind())
+        var newValue string
+
+        switch value.Kind(){
+        case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+            newValue = strconv.Itoa(int(value.Int()))
+
+        case reflect.String:
+            newValue = value.String()
+        }
+        newLine = append(newLine, newValue)
     }
-
-    fmt.Printf("\nthis is the filepath: %v", bin.filePath)
-    fmt.Println(newLine)
-
     w.Write(newLine)
     w.Flush()
     fmt.Println(w.Error())
@@ -75,9 +73,7 @@ func (bin *Bin) Toss (input interface{}) {
         for i := 0; i < s.Len(); i++ {
             tossCSV(bin, w, s.Index(i))
         }
-
     }
-
 }
 
 

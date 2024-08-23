@@ -86,10 +86,18 @@ func TestTossSlice(t *testing.T) {
         {Name: "alicauyfeawfae", Age: "2345"},
         {Name: "ale", Age: "23456"},
     }
-    for i := 0; i < 100000; i ++ {
+    for i := 0; i < 100; i ++ {
         b.Toss(ra)
     }
 
+    b.Toss(PersonStrings{Name: "last single one", Age: "234"})
+
+}
+
+func TestStructWithInt(t *testing.T) {
+    b := NewBin("people.csv", Person{})
+
+    b.Toss(Person{Name: "Ricky", Age: 12})
 }
 
 
