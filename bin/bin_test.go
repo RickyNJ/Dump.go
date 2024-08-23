@@ -1,13 +1,11 @@
-package main
+package bin
 
 import (
-	// "os"
 	"encoding/csv"
 	"fmt"
 	"os"
 	"reflect"
 	"testing"
-
 )
 
 type Person struct {
@@ -29,13 +27,24 @@ func initTests() (Person, []*Person) {
     "Alice", Age: 26}}
 }
 
+func TestToss(t *testing.T) {
+    b := NewBin("people.csv", Person{})
+    
+    if !b.Toss(Person{Name: "hi", Age: 21}) {
+        t.Fail()
+    }
+}
+
 
 func TestNewBinCreation(t *testing.T) {
-    NewBin("people.csv", Person{})
+    filename := "people.csv"
+    defer os.Remove(filename)
 
-    f, err  := os.Open("people.csv") 
+    NewBin(filename, Person{})
+
+    f, err  := os.Open(filename)
     if err != nil {
-        fmt.Printf("people.csv is not created: %v", err)
+        fmt.Printf("%v is not created: %v",filename, err)
     }
 
     r := csv.NewReader(f)
@@ -48,7 +57,6 @@ func TestNewBinCreation(t *testing.T) {
         t.Fatalf("csv content not correct")
     }
 
-    os.Remove("people.csv")
 }
 
 
@@ -64,6 +72,35 @@ func TestPrintNamesPerson(t *testing.T) {
 	}
 }
 
+
+func TestUnsupportedFileTypes (t *testing.T) {
+    if getFileType("hai.db") != "unsupported" {
+        t.Fatalf("not unsupported")
+    }
+}
+
+func TestNoFileTypes (t *testing.T) {
+    if getFileType("hai") != "please add filetype to the filename" {
+        t.Fatalf("No File Type failed")
+    }
+}
+
+func TestTooManyPeriodFileTypes (t *testing.T) {
+    if getFileType("hai.lasd.slkdf.json") != "json" {
+        t.Fatalf("Multiple periods failed")
+    }
+}
+func TestCSVFileTypes (t *testing.T) {
+    if getFileType("hai.csv") != "csv" {
+        t.Fatalf("csv failed")
+    }
+}
+
+func TestJSONFileTypes (t *testing.T) {
+    if getFileType("hai.json") != "json" {
+        t.Fatalf("json failed")
+    }
+}
 // func TestPrintHeadersClasses(t *testing.T) {
 // 	test := []*Classes{{Name: "A3", Count: 3, People: []*Person{{Name: "Ricky", Age: 23}, {Name: "Alice", Age: 26}}, Leader: &Person{Name: "Pekin", Age: 4}}}
 // 	want := []string{"Name", "Count", "People", "Leader"}
