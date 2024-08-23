@@ -13,6 +13,11 @@ type Person struct {
 	Age  int    // will go fmt format this for me
 }
 
+type PersonStrings struct {
+    Name string
+    Age string
+}
+
 type longstruct struct {
     Name string
     Age int
@@ -28,10 +33,23 @@ func initTests() (Person, []*Person) {
 }
 
 func TestToss(t *testing.T) {
-    b := NewBin("people.csv", Person{})
+    b := NewBin("people.csv", PersonStrings{Name: "Ricky", Age: "23"})
+    b.Toss(Person{Name: "hi", Age: 21})
     
-    if !b.Toss(Person{Name: "hi", Age: 21}) {
-        t.Fail()
+    file, err := os.Open(b.filepath)
+    if err != nil {
+        t.Errorf("file doesnt exist %v", err)
+    }
+
+    r := csv.NewReader(file)
+
+    lines, err := r.ReadAll()
+    if err != nil {
+        t.Errorf("Couldnt read file %v", err)
+    }
+    want := [][]string{{"Name", "Age"}, {"Ricky", "23"}}
+    if !reflect.DeepEqual(lines, want){
+        t.Fatalf("%v and %v are not equal", lines, want)
     }
 }
 

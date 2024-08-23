@@ -2,6 +2,7 @@ package bin
 
 import (
 	"encoding/csv"
+	"io"
 	"log"
 	"os"
 	"reflect"
@@ -22,24 +23,47 @@ import (
 // NewBin, Toss, getStructFieldNames, createFile,
 
 type Bin struct {
-    structname string
+    structType reflect.Type
     headers []string
-    filepath string
-    filetype string
+    filePath string
+    fileType string
+}
+ 
+func tossSliceCSV (f *os.File, input interface{}) {
+   return 
 }
 
-func tossCSV (input interface{}) {
+func tossCSV (w *io.Writer, input reflect.Value) {
+    newLine := []string{}
+
+    
     return
 }
 
 func (bin *Bin) Toss (input interface{}) {
-    if reflect.TypeOf(input).Name() != bin.structname {
-        return 
+    f, err := os.Open(bin.filePath)
+    if err != nil {
+        panic("Couldnt open file")
     }
 
-    if bin.filetype == "csv" {
-        tossCSV(input) 
+    if bin.fileType == "csv" {
+       
     }
+    
+
+    v := reflect.TypeOf(input)
+    b := bin.structType
+    
+    if v == b {
+        w := csv.NewWriter(f)
+        tossCSV(w, reflect.ValueOf(input))
+    }
+    if v.Kind() == reflect.Slice {
+        if v.Elem() == b {
+            tossSliceCSV(f, input)
+        }
+    }
+
     return 
 }
 
@@ -59,7 +83,7 @@ func getFileType(filename string ) string{
     return "unsupported"
 }
 
-func NewBin[T any](filename string, inputStruct T) *Bin {
+func NewBin[T any](fileName string, inputStruct T) *Bin {
 
     v := reflect.ValueOf(inputStruct)
 
@@ -71,12 +95,12 @@ func NewBin[T any](filename string, inputStruct T) *Bin {
         panic("input is not a struct")
     }
 
-    structname := reflect.TypeOf(inputStruct).Name()
+    structType := reflect.TypeOf(inputStruct)
     headers := getStructFieldNames(inputStruct)
-    filetype := getFileType(filename)
+    fileType := getFileType(fileName)
 
-    if filetype == "csv" {
-        binFile, err := CreateFile(filename, headers) 
+    if fileType == "csv" {
+        binFile, err := CreateFile(fileName, headers) 
         if err != nil {
             log.Fatal(err)
         }
@@ -84,25 +108,17 @@ func NewBin[T any](filename string, inputStruct T) *Bin {
     }
 
     return &Bin{
-            structname: structname, 
+            structType: structType, 
             headers: headers, 
-            filepath: filename, 
-            filetype: filetype,
+            filePath: fileName, 
+            fileType: fileType,
         } 
 }
 
 func getStructFieldNames[T any](inputStruct T) []string {
 	headers := []string{}
 	structType := reflect.TypeOf(inputStruct)
-
-    if structType.Kind() == reflect.Ptr {
-        structType = structType.Elem()
-    }
-
-    if structType.Kind() != reflect.Struct {
-        // TODO CREATE ERROR FOR NOT A STRUCT
-        return headers
-    }
+    structType = structType.Elem()
 
     for i := 0; i < structType.NumField(); i++ {
         field := structType.Field(i)
