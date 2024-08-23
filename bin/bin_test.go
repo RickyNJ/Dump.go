@@ -77,24 +77,19 @@ func TestToss(t *testing.T) {
 
 func TestTossSlice(t *testing.T) {
     b := NewBin("people.csv", PersonStrings{})
-    ra := []PersonStrings{{Name: "ricky", Age: "23"}, {Name: "alice", Age: "26"}}
-    b.Toss(ra)
-    
-    // file, err := os.Open(b.filePath)
-    // if err != nil {
-    //     t.Errorf("file doesnt exist %v", err)
-    // }
-    //
-    // r := csv.NewReader(file)
-    //
-    // lines, err := r.ReadAll()
-    // if err != nil {
-    //     t.Errorf("Couldnt read file %v", err)
-    // }
-    // want := [][]string{{"Name", "Age"}, {"hi", "21"}}
-    // if !reflect.DeepEqual(lines, want){
-    //     t.Fatalf("%v and %v are not equal", lines, want)
-    // }
+    ra := []PersonStrings{
+        {Name: "ricky", Age: "23"}, 
+        {Name: "alice", Age: "26"},
+        {Name: "klaj", Age: "223"},
+        {Name: "aleliafe", Age: "21"},
+        {Name: "kjndakjlfnace", Age: "516"},
+        {Name: "alicauyfeawfae", Age: "2345"},
+        {Name: "ale", Age: "23456"},
+    }
+    for i := 0; i < 100000; i ++ {
+        b.Toss(ra)
+    }
+
 }
 
 
