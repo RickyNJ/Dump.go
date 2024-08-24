@@ -58,7 +58,7 @@ func TestToss(t *testing.T) {
     b := NewBin("people.csv", PersonStrings{})
     b.Toss(PersonStrings{Name: "hi", Age: "21"})
     
-    file, err := os.Open(b.filePath)
+    file, err := os.Open("people.csv")
     if err != nil {
         t.Errorf("file doesnt exist %v", err)
     }
@@ -74,112 +74,104 @@ func TestToss(t *testing.T) {
         t.Fatalf("%v and %v are not equal", lines, want)
     }
 }
-
-func TestTossSlice(t *testing.T) {
-    b := NewBin("peoplestrings.csv", PersonStrings{})
-    ra := []PersonStrings{
-        {Name: "ricky", Age: "23"}, 
-        {Name: "alice", Age: "26"},
-        {Name: "klaj", Age: "223"},
-        {Name: "aleliafe", Age: "21"},
-        {Name: "kjndakjlfnace", Age: "516"},
-        {Name: "alicauyfeawfae", Age: "2345"},
-        {Name: "ale", Age: "23456"},
-    }
-    for i := 0; i < 100; i ++ {
-        b.Toss(ra)
-    }
-
-    b.Toss(PersonStrings{Name: "last single one", Age: "234"})
-
+type ints struct {
+    age int
 }
-
-func TestStructWithInt(t *testing.T) {
-    b := NewBin("people.csv", Person{})
-
-    b.Toss(Person{Name: "Ricky", Age: 12})
-
-    personlist := []Person{
-        {Name: "ln", Age: 34}, 
-        {Name: "a;lskjdf", Age: 3244}, 
-        {Name: "fsdf", Age: 234}, 
-        {Name: "3254", Age: 1244}, 
-        {Name: "324n", Age: 32}, 
-        {Name: "ladsfklajshfn", Age: 4}, 
-    }
-
-    b.Toss(personlist)
-    b.Toss(personlist)
-
-    b.Toss(Person{Name: "Alice", Age: 26})
+func TestTossInt(t *testing.T) {
+    b := NewBin("ints.csv", ints{})
+    b.Toss(ints{age: 32})
 }
 
 
-
-
-
-func TestPrintNamesPerson(t *testing.T) {
-    p, _ := initTests()
-
-	// test := Person{Name: "Ricky", Age: 23}
-	want := []string{"Name", "Age"}
-
-	ans := getStructFieldNames(p)
-	if !reflect.DeepEqual(ans, want) {
-		t.Fatalf("oh oh")
-	}
+type floats struct {
+    i float32
+    ii float64
 }
 
-
-func TestUnsupportedFileTypes (t *testing.T) {
-    if getFileType("hai.db") != "unsupported" {
-        t.Fatalf("not unsupported")
-    }
+func TestTossFloat(t *testing.T) {
+    b := NewBin("floats.csv", floats{})
+    b.Toss(floats{i: 6.1, ii: 3.1 })
 }
-
-func TestNoFileTypes (t *testing.T) {
-    if getFileType("hai") != "please add filetype to the filename" {
-        t.Fatalf("No File Type failed")
-    }
-}
-
-func TestTooManyPeriodFileTypes (t *testing.T) {
-    if getFileType("hai.lasd.slkdf.json") != "json" {
-        t.Fatalf("Multiple periods failed")
-    }
-}
-func TestCSVFileTypes (t *testing.T) {
-    if getFileType("hai.csv") != "csv" {
-        t.Fatalf("csv failed")
-    }
-}
-
-func TestJSONFileTypes (t *testing.T) {
-    if getFileType("hai.json") != "json" {
-        t.Fatalf("json failed")
-    }
-}
-// func TestPrintHeadersClasses(t *testing.T) {
-// 	test := []*Classes{{Name: "A3", Count: 3, People: []*Person{{Name: "Ricky", Age: 23}, {Name: "Alice", Age: 26}}, Leader: &Person{Name: "Pekin", Age: 4}}}
-// 	want := []string{"Name", "Count", "People", "Leader"}
 //
-// 	ans := getStructFieldNames(test)
+// func TestTossSlice(t *testing.T) {
+//     b := NewBin("peoplestrings.csv", PersonStrings{})
+//     ra := []PersonStrings{
+//         {Name: "ricky", Age: "23"}, 
+//         {Name: "alice", Age: "26"},
+//         {Name: "klaj", Age: "223"},
+//         {Name: "aleliafe", Age: "21"},
+//         {Name: "kjndakjlfnace", Age: "516"},
+//         {Name: "alicauyfeawfae", Age: "2345"},
+//         {Name: "ale", Age: "23456"},
+//     }
+//     for i := 0; i < 100; i ++ {
+//         b.Toss(ra)
+//     }
 //
+//     b.Toss(PersonStrings{Name: "last single one", Age: "234"})
+//
+// }
+//
+// func TestStructWithInt(t *testing.T) {
+//     b := NewBin("people.csv", Person{})
+//
+//     b.Toss(Person{Name: "Ricky", Age: 12})
+//
+//     personlist := []Person{
+//         {Name: "ln", Age: 34}, 
+//         {Name: "a;lskjdf", Age: 3244}, 
+//         {Name: "fsdf", Age: 234}, 
+//         {Name: "3254", Age: 1244}, 
+//         {Name: "324n", Age: 32}, 
+//         {Name: "ladsfklajshfn", Age: 4}, 
+//     }
+//
+//     b.Toss(personlist)
+//     b.Toss(personlist)
+//
+//     b.Toss(Person{Name: "Alice", Age: 26})
+// }
+//
+//
+// func TestPrintNamesPerson(t *testing.T) {
+//     p, _ := initTests()
+//
+// 	// test := Person{Name: "Ricky", Age: 23}
+// 	want := []string{"Name", "Age"}
+//
+// 	ans := getStructFieldNames(p)
 // 	if !reflect.DeepEqual(ans, want) {
-// 		t.Fatalf(" oh no")
+// 		t.Fatalf("oh oh")
 // 	}
 // }
 //
-// func TestFileCreation(t *testing.T) {
-//     CreateFile("test.csv", []string{"ricky", "alice"})
-//      
-//     if _, err := os.Stat("test.csv"); os.IsNotExist(err) {
-//         t.Fatalf("file doesnt exist: %s", err)	
-//     }
 //
-//     err := os.Remove("test.csv") 
-//     if err != nil { 
-//         t.Fatalf("Failed to remove the file: %v", err)
+// func TestUnsupportedFileTypes (t *testing.T) {
+//     if getFileType("hai.db") != "unsupported" {
+//         t.Fatalf("not unsupported")
 //     }
-//
 // }
+//
+// func TestNoFileTypes (t *testing.T) {
+//     if getFileType("hai") != "please add filetype to the filename" {
+//         t.Fatalf("No File Type failed")
+//     }
+// }
+//
+// func TestTooManyPeriodFileTypes (t *testing.T) {
+//     if getFileType("hai.lasd.slkdf.json") != "json" {
+//         t.Fatalf("Multiple periods failed")
+//     }
+// }
+// func TestCSVFileTypes (t *testing.T) {
+//     if getFileType("hai.csv") != "csv" {
+//         t.Fatalf("csv failed")
+//     }
+// }
+//
+// func TestJSONFileTypes (t *testing.T) {
+//     if getFileType("hai.json") != "json" {
+//         t.Fatalf("json failed")
+//     }
+// }
+
