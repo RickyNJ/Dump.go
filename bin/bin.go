@@ -2,6 +2,7 @@ package bin
 
 import (
 	"encoding/csv"
+	"encoding/json"
 
 	"fmt"
 	"log"
@@ -10,19 +11,12 @@ import (
 	"strings"
 )
 
-//  TODO:
-//  Bin.Toss( data T | []T ) -> if reflect.TypeOf(data) == reflect.TypeOf(self.Data)
-//  if data T -> func writeline[[]strings, os.File(?)]
-//  if data []T -> while len(data) != 0 -> writeline(data), data.pop?
-//  ITERATOR?????????
-//  find way of io.Writer to use streams
-
-//  CAST EVERYTHING TO STRING
-//  maybe think about ways to make modular so that other formats are possible?
-
 // total funcs for now
-// NewBin, Toss, getStructFieldNames, createFile,
+// NewBin, LoadBin, Toss
 
+type Bin interface {
+    Toss(input interface{})
+}
 
 
 type CSVBin struct {
@@ -31,22 +25,11 @@ type CSVBin struct {
     filePath string
 }
 
+
 type JSONBin struct {
     structType reflect.Type
     fields []string
     filePath string
-}
-
-// type Bin struct {
-//     structType reflect.Type
-//     fields []string
-//     filePath string
-//     fileType string
-// }
-
-
-type Bin interface {
-    Toss(input interface{})
 }
 
 
@@ -65,20 +48,10 @@ func tossCSV (bin *CSVBin, w *csv.Writer, input reflect.Value) {
     newLine := []string{}
     for _, v := range bin.fields {
         value := input.FieldByName(v)
-        var newValue string
-
-        newValue = fmt.Sprint(value)
-        newLine = append(newLine, newValue)
-        // switch value.Kind(){
-        // case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-        //     newValue = strconv.Itoa(int(value.Int()))
-        //
-        // case reflect.String:
-        //     newValue = value.String()
-        // }
+        stringValue := fmt.Sprint(value)
+        newLine = append(newLine, stringValue)
     }
     w.Write(newLine)
-    w.Flush()
 }
 
 
@@ -103,6 +76,8 @@ func (bin *CSVBin) Toss (input interface{}) {
             tossCSV(bin, w, s.Index(i))
         }
     }
+    w.Flush()
+    fmt.Print("\n\n\n\n\ndoes this even reach the end??? ")
 }
 
 
@@ -115,8 +90,20 @@ func createCSV(fileName string, fields []string) error{
     return err
 }
 
-func createJSON(fileName string) error {
+func createJSON(fileName string, structname string) error {
+    data := map[string][]interface{}{
+        structname: {},
+    }
+    jsonData, err := json.MarshalIndent(data, "", " ")
+    if err != nil {
+        panic("failed to marshall")
+    }
+
+
     f, err := os.Create(fileName)
+    defer f.Close()
+
+    f.Write(jsonData)
     f.Close()
     return err
 }
@@ -147,7 +134,6 @@ func getStructFieldNames[T any](inputStruct T) []string {
         field := structType.Field(i)
         fields = append(fields, field.Name)
     }
-
 	return fields
 }
 
@@ -175,7 +161,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
         }
 
     case "json":
-        err := createJSON(fileName)
+        err := createJSON(fileName, structType.Name())
         if err != nil {
             log.Fatal(err)
         }

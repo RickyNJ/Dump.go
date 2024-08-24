@@ -18,14 +18,6 @@ type PersonStrings struct {
     Age string
 }
 
-type longstruct struct {
-    Name string
-    Age int
-    Gender string
-    Phonenumber int 
-    Employed string
-    Salary int
-}
 
 func initTests() (Person, []*Person) {
     return Person{Name: "Ricky", Age: 23},  []*Person{{Name: "Ricky", Age: 23}, {Name: 
@@ -54,6 +46,10 @@ func TestNewBinCreation(t *testing.T) {
     }
 
 }
+func TestJSONBinCreation(t *testing.T){
+    filename := "people.json"
+    NewBin(filename, Person{})
+}
 func TestToss(t *testing.T) {
     b := NewBin("people.csv", PersonStrings{})
     b.Toss(PersonStrings{Name: "hi", Age: "21"})
@@ -74,6 +70,8 @@ func TestToss(t *testing.T) {
         t.Fatalf("%v and %v are not equal", lines, want)
     }
 }
+
+
 type ints struct {
     age int
 }
@@ -91,6 +89,15 @@ type floats struct {
 func TestTossFloat(t *testing.T) {
     b := NewBin("floats.csv", floats{})
     b.Toss(floats{i: 6.1, ii: 3.1 })
+}
+
+type arrstruct struct {
+    i []string
+}
+
+func TestTossArr(t *testing.T){
+    b := NewBin("arr.csv", arrstruct{})
+    b.Toss(arrstruct{i:[]string{"hi", "hello"} })
 }
 //
 // func TestTossSlice(t *testing.T) {
