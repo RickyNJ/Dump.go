@@ -23,16 +23,43 @@ import (
 // total funcs for now
 // NewBin, Toss, getStructFieldNames, createFile,
 
-type Bin struct {
+
+
+type CSVBin struct {
     structType reflect.Type
     headers []string
     filePath string
-    fileType string
 }
 
- 
+type JSONBin struct {
+    structType reflect.Type
+    headers []string
+    filePath string
+}
 
-func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) { 
+// type Bin struct {
+//     structType reflect.Type
+//     headers []string
+//     filePath string
+//     fileType string
+// }
+
+
+type Bin interface {
+    Toss(input interface{})
+}
+
+
+func (bin JSONBin) Toss (input interface{}) {
+    f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+        panic("Couldnt open file")
+    }
+    return
+}
+
+
+func tossCSV (bin *CSVBin, w *csv.Writer, input reflect.Value) { 
     newLine := []string{}
     for _, v := range bin.headers {
         value := input.FieldByName(v)
@@ -50,10 +77,10 @@ func tossCSV (bin *Bin, w *csv.Writer, input reflect.Value) {
     }
     w.Write(newLine)
     w.Flush()
-    fmt.Println(w.Error())
 }
 
-func (bin *Bin) Toss (input interface{}) {
+
+func (bin *CSVBin) Toss (input interface{}) {
     f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
         panic("Couldnt open file")
@@ -77,6 +104,22 @@ func (bin *Bin) Toss (input interface{}) {
 }
 
 
+func createCSV(fileName string, headers []string) error{
+	f, err := os.Create(fileName)
+    w := csv.NewWriter(f)
+    w.Write(headers)
+    w.Flush()
+    f.Close()
+    return err
+}
+
+func createJSON(fileName string) error {
+    f, err := os.Create(fileName)
+    f.Close()
+    return err
+}
+
+
 func getFileType(filename string ) string{
     filename_slice := strings.Split(filename, ".")
 
@@ -94,16 +137,6 @@ func getFileType(filename string ) string{
 }
 
 
-func createFile(fileName string, headers []string) (*os.File, error){
-	f, err := os.Create(fileName)
-    w := csv.NewWriter(f)
-	w.Write(headers)
-	w.Flush()
-    f.Close()
-    return f, err
-}
-
-
 func getStructFieldNames[T any](inputStruct T) []string {
 	headers := []string{}
 	structType := reflect.TypeOf(inputStruct)
@@ -116,27 +149,39 @@ func getStructFieldNames[T any](inputStruct T) []string {
 	return headers
 }
 
-func NewBin[T any](fileName string, inputStruct T) *Bin {
-    t := reflect.TypeOf(inputStruct)
-    if t.Kind() != reflect.Struct {
+func NewBin[T any](fileName string, inputStruct T) Bin {
+    structType := reflect.TypeOf(inputStruct)
+    if structType.Kind() != reflect.Struct {
         panic("input is not a struct")
     }
 
-    structType := reflect.TypeOf(inputStruct)
     headers := getStructFieldNames(inputStruct)
     fileType := getFileType(fileName)
 
-    if fileType == "csv" {
-        _, err := createFile(fileName, headers) 
+    switch fileType {
+    case "csv":
+        err := createCSV(fileName, headers) 
         if err != nil {
             log.Fatal(err)
         }
+        return &CSVBin {
+            structType: structType,
+            headers: headers,
+            filePath: fileName,
+        }
+
+    case "json":
+        err := createJSON(fileName)
+        if err != nil {
+            log.Fatal(err)
+        }
+        return &JSONBin{
+            structType: structType,
+            headers: headers,
+            filePath: fileName,
+        }
     }
 
-    return &Bin{
-            structType: structType, 
-            headers: headers, 
-            filePath: fileName, 
-            fileType: fileType,
-        } 
+
+    return nil    
 }

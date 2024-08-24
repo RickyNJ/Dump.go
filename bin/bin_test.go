@@ -76,7 +76,7 @@ func TestToss(t *testing.T) {
 }
 
 func TestTossSlice(t *testing.T) {
-    b := NewBin("people.csv", PersonStrings{})
+    b := NewBin("peoplestrings.csv", PersonStrings{})
     ra := []PersonStrings{
         {Name: "ricky", Age: "23"}, 
         {Name: "alice", Age: "26"},
@@ -98,6 +98,20 @@ func TestStructWithInt(t *testing.T) {
     b := NewBin("people.csv", Person{})
 
     b.Toss(Person{Name: "Ricky", Age: 12})
+
+    personlist := []Person{
+        {Name: "ln", Age: 34}, 
+        {Name: "a;lskjdf", Age: 3244}, 
+        {Name: "fsdf", Age: 234}, 
+        {Name: "3254", Age: 1244}, 
+        {Name: "324n", Age: 32}, 
+        {Name: "ladsfklajshfn", Age: 4}, 
+    }
+
+    b.Toss(personlist)
+    b.Toss(personlist)
+
+    b.Toss(Person{Name: "Alice", Age: 26})
 }
 
 
