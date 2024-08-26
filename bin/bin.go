@@ -1,110 +1,17 @@
 package bin
 
 import (
-	"encoding/csv"
-	"encoding/json"
-
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"strings"
 )
 
-// total funcs for now
-// NewBin, LoadBin, Toss
 
 type Bin interface {
 	Toss(input interface{})
 }
 
-type CSVBin struct {
-	structType reflect.Type
-	fields     []string
-	filePath   string
-}
-
-type JSONBin struct {
-	structType reflect.Type
-	fields     []string
-	filePath   string
-}
-
-func (bin *JSONBin) Toss(input interface{}) {
-	f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic("Couldnt open file")
-	}
-	f.Close()
-}
-
-func tossCSV(bin *CSVBin, w *csv.Writer, input reflect.Value) {
-	newLine := []string{}
-	for _, v := range bin.fields {
-		value := input.FieldByName(v)
-		newValue := []string{}
-		if value.Kind() == reflect.Struct {
-
-		} else {
-			newValue = append(newValue, fmt.Sprint(value))
-		}
-		newLine = append(newLine, newValue...)
-	}
-	w.Write(newLine)
-}
-
-func (bin *CSVBin) Toss(input interface{}) {
-	f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic("Couldnt open file")
-	}
-
-	w := csv.NewWriter(f)
-	t := reflect.TypeOf(input)
-	b := bin.structType
-
-	switch reflect.ValueOf(input).Kind() {
-	case reflect.Struct:
-		if t == b {
-			tossCSV(bin, w, reflect.ValueOf(input))
-		}
-	case reflect.Slice, reflect.Array:
-		s := reflect.ValueOf(input)
-		for i := 0; i < s.Len(); i++ {
-			tossCSV(bin, w, s.Index(i))
-		}
-	}
-	w.Flush()
-}
-
-func createCSV(fileName string, fields []string) error {
-	f, err := os.Create(fileName)
-	w := csv.NewWriter(f)
-	w.Write(fields)
-	w.Flush()
-	f.Close()
-	return err
-}
-
-func createJSON(fileName string, structname string) error {
-	data := map[string][]interface{}{
-		structname: {},
-	}
-	jsonData, err := json.MarshalIndent(data, "", " ")
-	if err != nil {
-		panic("failed to marshall")
-	}
-
-	f, err := os.Create(fileName)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	f.Write(jsonData)
-	f.Close()
-	return err
-}
 
 func getFileType(filename string) string {
 	filename_slice := strings.Split(filename, ".")
@@ -112,12 +19,12 @@ func getFileType(filename string) string {
 	if len(filename_slice) <= 1 {
 		return "please add filetype to the filename"
 	}
-	if filename_slice[len(filename_slice)-1] == "csv" {
-		return "csv"
-	}
-	if filename_slice[len(filename_slice)-1] == "json" {
-		return "json"
-	}
+    switch filename_slice[len(filename_slice)-1] {
+    case "csv":
+        return "csv"
+    case "json":
+        return "json"
+    }
 
 	return "unsupported"
 }
