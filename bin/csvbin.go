@@ -1,10 +1,10 @@
 package bin
 
 import (
-    "reflect"
-    "os"
-    "fmt"
-    "encoding/csv"
+	"encoding/csv"
+	"fmt"
+	"os"
+	"reflect"
 )
 
 type CSVBin struct {
@@ -14,26 +14,28 @@ type CSVBin struct {
 }
 
 
-func (bin *JSONBin) Toss(input interface{}) {
-	f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic("Couldnt open file")
-	}
-	f.Close()
-}
 
-func tossCSV(bin *CSVBin, w *csv.Writer, input reflect.Value) {
-	newLine := []string{}
-	for _, v := range bin.fields {
-		value := input.FieldByName(v)
-		newValue := []string{}
-		if value.Kind() == reflect.Struct {
+func tossCSV(w *csv.Writer, input interface{}) {
+    newLine := []string{}
+    var scanInput func(input interface{})
 
-		} else {
-			newValue = append(newValue, fmt.Sprint(value))
-		}
-		newLine = append(newLine, newValue...)
-	}
+    scanInput = func(input interface{}) {
+
+        inputType := reflect.TypeOf(input)
+        inputValue := reflect.ValueOf(input)
+
+        for i:=0; i < inputType.NumField(); i++ {
+            fieldValue := inputValue.Field(i)
+
+            if fieldValue.Kind() == reflect.Struct {
+                scanInput(fieldValue.Interface())
+            } else {
+                newLine = append(newLine, fmt.Sprint(fieldValue))
+            }
+        }
+    }
+
+    scanInput(input)
 	w.Write(newLine)
 }
 
@@ -50,12 +52,12 @@ func (bin *CSVBin) Toss(input interface{}) {
 	switch reflect.ValueOf(input).Kind() {
 	case reflect.Struct:
 		if t == b {
-			tossCSV(bin, w, reflect.ValueOf(input))
+            tossCSV(w, input)
 		}
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(input)
 		for i := 0; i < s.Len(); i++ {
-			tossCSV(bin, w, s.Index(i))
+			tossCSV(w, s.Index(i))
 		}
 	}
 	w.Flush()
