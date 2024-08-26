@@ -8,56 +8,68 @@ import (
 )
 
 type CSVBin struct {
-	structType reflect.Type
-	fields     []string
-	filePath   string
+	StructType reflect.Type
+	Fields     []string
+	FilePath   string
 }
 
-
-
 func tossCSV(w *csv.Writer, input interface{}) {
-    newLine := []string{}
-    var scanInput func(input interface{})
+	newLine := []string{}
+	var scanInput func(inputStruct interface{})
 
-    scanInput = func(input interface{}) {
+	scanInput = func(inputStruct interface{}) {
 
-        inputType := reflect.TypeOf(input)
-        inputValue := reflect.ValueOf(input)
+		inputType := reflect.TypeOf(inputStruct)
+		inputValue := reflect.ValueOf(inputStruct)
 
-        for i:=0; i < inputType.NumField(); i++ {
-            fieldValue := inputValue.Field(i)
+		if inputValue.Kind() == reflect.Ptr {
+			inputValue = inputValue.Elem()
+			inputType = inputType.Elem()
+		}
 
-            if fieldValue.Kind() == reflect.Struct {
-                scanInput(fieldValue.Interface())
-            } else {
-                newLine = append(newLine, fmt.Sprint(fieldValue))
-            }
-        }
-    }
+		for i := 0; i < inputType.NumField(); i++ {
+			fieldValue := inputValue.Field(i)
 
-    scanInput(input)
+			if fieldValue.Kind() == reflect.Struct {
+				scanInput(fieldValue.Interface())
+
+			} else if fieldValue.Kind() == reflect.Ptr {
+				if !fieldValue.IsNil() {
+					elem := fmt.Sprint(fieldValue.Elem())
+					newLine = append(newLine, elem)
+				} else {
+					newLine = append(newLine, "nil")
+				}
+
+			} else {
+				newLine = append(newLine, fmt.Sprint(fieldValue))
+			}
+		}
+	}
+
+	scanInput(input)
 	w.Write(newLine)
 }
 
 func (bin *CSVBin) Toss(input interface{}) {
-	f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(bin.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("Couldnt open file")
 	}
 
 	w := csv.NewWriter(f)
 	t := reflect.TypeOf(input)
-	b := bin.structType
+	b := bin.StructType
 
 	switch reflect.ValueOf(input).Kind() {
 	case reflect.Struct:
 		if t == b {
-            tossCSV(w, input)
+			tossCSV(w, input)
 		}
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(input)
 		for i := 0; i < s.Len(); i++ {
-			tossCSV(w, s.Index(i))
+			tossCSV(w, s.Index(i).Interface())
 		}
 	}
 	w.Flush()

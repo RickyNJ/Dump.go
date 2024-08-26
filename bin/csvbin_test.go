@@ -107,8 +107,11 @@ type Nested struct {
 func TestCSVTossNested(t *testing.T){
     // defer os.Remove("nested.csv")
     b := NewBin("nested.csv", Nested{}) 
+    ricky := Nested{Person: Person{Name: "ricky", Age: 23}, Company: "vfz"}
 
     b.Toss(Nested{Person: Person{Name: "ricky", Age: 23}, Company: "vfz"})
+
+    b.Toss([]Nested{ricky, ricky})
 
 	file, err := os.Open("nested.csv")
 	if err != nil {

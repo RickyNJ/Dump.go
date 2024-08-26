@@ -19,6 +19,7 @@ func getFileType(filename string) string {
 	if len(filename_slice) <= 1 {
 		return "please add filetype to the filename"
 	}
+
     switch filename_slice[len(filename_slice)-1] {
     case "csv":
         return "csv"
@@ -36,11 +37,11 @@ func getStructFieldNames[T any](inputStruct T) []string {
 	recursiveSearch = func(parentStruct string, input interface{}) []string {
 
 		res := []string{}
-		structType := reflect.TypeOf(input)
+		StructType := reflect.TypeOf(input)
 		structValue := reflect.ValueOf(input)
 
-		for i := 0; i < structType.NumField(); i++ {
-			field := structType.Field(i)
+		for i := 0; i < StructType.NumField(); i++ {
+			field := StructType.Field(i)
 			fieldValue := structValue.Field(i)
 
 			var fieldName string
@@ -84,9 +85,9 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		}
 		fmt.Printf("created file %v \n", fileName)
 		return &CSVBin{
-			structType: structType,
-			fields:     fields,
-			filePath:   fileName,
+			StructType: structType,
+			Fields:     fields,
+			FilePath:   fileName,
 		}
 
 	case "json":
@@ -95,9 +96,9 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 			log.Fatal(err)
 		}
 		return &JSONBin{
-			structType: structType,
-			fields:     fields,
-			filePath:   fileName,
+			StructType: structType,
+			Fields:     fields,
+			FilePath:   fileName,
 		}
 	}
 

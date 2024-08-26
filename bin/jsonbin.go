@@ -7,14 +7,14 @@ import (
 )
 
 type JSONBin struct {
-	structType reflect.Type
-	fields     []string
-	filePath   string
+	StructType reflect.Type
+	Fields     []string
+	FilePath   string
 }
 
 
 func (bin *JSONBin) Toss(input interface{}) {
-	f, err := os.OpenFile(bin.filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(bin.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("Couldnt open file")
 	}
