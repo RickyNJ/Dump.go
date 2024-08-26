@@ -1,41 +1,32 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-    "strconv"
-
 	"github.com/RickyNJ/dump/bin"
 )
 
 type Person struct {
-    Name string
-    Age int
+	Name string
+	Age  int
+}
+
+type Employee struct {
+	Position string
+	Salary   int
+	Person   Person
 }
 
 func main() {
-    b := bin.NewBin("people.csv", Person{})
-    scanner := bufio.NewScanner(os.Stdin)
+	ricky := Person{Name: "Ricky", Age: 23}
+	alice := Person{Name: "Alice", Age: 25}
 
-    for {
-        fmt.Print("Name:")
-        namescanner := scanner.Scan()
-        if !namescanner {
-            return
-        }
-        name := scanner.Text()
+	developer := Employee{Position: "developer", Salary: 12, Person: ricky}
+	artist := Employee{Position: "artist", Salary: 12, Person: alice}
 
-        fmt.Print("Age:")
-        agescanner := scanner.Scan()
-        if !agescanner {
-            return
-        }
-        age := scanner.Text()
-        ageint, err := strconv.Atoi(age)
-        if err != nil {
-            return
-        }
-        b.Toss(Person{Name: name, Age: ageint})
-    }
-} 
+	people := []Employee{developer, artist}
+
+	csvbin := bin.NewBin("testnested.csv", Employee{})
+
+	csvbin.Toss(ricky)
+
+	csvbin.Toss(people)
+}
