@@ -12,12 +12,18 @@ type JSONBin struct {
 	FilePath   string
 }
 
+// json TODO, try 2 ways of appending to the json bin
+// json unmarshall, get the array, append, marshal
+// json as string, remove last elements write to end of file, write ]}
+
 
 func (bin *JSONBin) Toss(input interface{}) {
 	f, err := os.OpenFile(bin.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("Couldnt open file")
 	}
+
+
 	f.Close()
 }
 
