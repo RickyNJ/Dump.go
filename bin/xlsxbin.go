@@ -23,16 +23,14 @@ func (bin *XLSXbin) Toss(input interface{}){
 
 func getColumn(i int) string {
     var result string
-
-    upper := i / 26
-    lower := i % 26
-    
+    upper, lower := i / 26, i % 26
     lowerrune := rune(lower + 65)
+
     if upper != 0 {
         upperrune := rune(upper + 64) 
         result = string([]rune{upperrune, lowerrune})
     } else {
-        result = string([]rune{lowerrune})
+        result = string(lowerrune)
     }
     return result
 }

@@ -70,16 +70,14 @@ func getStructFieldNames[T any](inputStruct T) []string {
 
 func NewBin[T any](fileName string, inputStruct T) Bin {
 	structType := reflect.TypeOf(inputStruct)
-	fmt.Printf("Generating new Bin with filename: %v and input struct %v \n", fileName, structType)
 	if structType.Kind() != reflect.Struct {
 		panic("input is not a struct")
 	}
 
 	fileType := getFileType(fileName)
 	fields := getStructFieldNames(inputStruct)
-    fmt.Printf("extracted fields: %v", fields)
+    fmt.Printf("bintype: %v, extracted fields: %v", fileType, fields)
 
-	fmt.Printf("extracted file type: %v, fields: %v \n", fileType, fields)
 	switch fileType {
 	case "csv":
 		err := createCSV(fileName, fields)
@@ -98,7 +96,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		fmt.Printf("created file %v \n", fileName)
 		return &JSONBin{
 			StructType: structType,
 			Fields:     fields,
@@ -110,7 +108,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
         if err != nil {
             log.Fatal(err)
         }
-
+		fmt.Printf("created file %v \n", fileName)
         return &XLSXbin{
             StructType: structType,
             Fields: fields,
