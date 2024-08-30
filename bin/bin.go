@@ -77,6 +77,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 
 	fileType := getFileType(fileName)
 	fields := getStructFieldNames(inputStruct)
+    fmt.Printf("extracted fields: %v", fields)
 
 	fmt.Printf("extracted file type: %v, fields: %v \n", fileType, fields)
 	switch fileType {
