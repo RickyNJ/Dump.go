@@ -97,6 +97,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		return &JSONBin{
 			StructType: structType,
 			Fields:     fields,
@@ -104,10 +105,17 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		}
     
     case "xlsx":
-        err := createXLSX()
+        err := createXLSX(fileName, structType.Name(), fields)
+        if err != nil {
+            log.Fatal(err)
+        }
 
+        return &XLSXbin{
+            StructType: structType,
+            Fields: fields,
+            FilePath: fileName,
+        }
 	}
-    
 
-	return nil
+	return nil 
 }
