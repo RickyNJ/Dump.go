@@ -25,6 +25,8 @@ func getFileType(filename string) string {
         return "csv"
     case "json":
         return "json"
+    case "xlsx":
+        return "xlsx"
     }
 
 	return "unsupported"
@@ -100,7 +102,12 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 			Fields:     fields,
 			FilePath:   fileName,
 		}
+    
+    case "xlsx":
+        err := createXLSX()
+
 	}
+    
 
 	return nil
 }
