@@ -8,7 +8,32 @@ import (
     "reflect"
 )
 
+func isEqual(input *os.File, want [][]string) bool {
+    r := csv.NewReader(input)
+    record, err := r.ReadAll()
+    if err != nil {
+        fmt.Println(err)
+    }
 
+    fmt.Printf("testing for deepequal\ninput: %v \nwant: %v \n", record, want)
+
+    return reflect.DeepEqual(record, want)
+}
+
+func TestCSVTossWithNil(t *testing.T) {
+    b := NewBin("people.csv", Person{})
+    b.Toss(Person{Age: 12})
+
+    f, err := os.Open("people.csv")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    if !isEqual(f, [][]string{{"Name", "Age"},{"", "12"}}) {
+        panic("not equal")
+    }
+
+}
 func TestNewCSVBinCreation(t *testing.T) {
 	filename := "people.csv"
 	defer os.Remove(filename)
@@ -76,6 +101,9 @@ func TestCSVToss(t *testing.T) {
 		t.Fatalf("%v and %v are not equal", lines, want)
 	}
 }
+
+
+
 
 func TestCSVTossWithSlice(t *testing.T) {
     defer os.Remove("peoples.csv")
