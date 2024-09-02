@@ -31,10 +31,6 @@ func TestJSONBinCreation(t *testing.T) {
 	NewBin(filename, Person{})
 }
 
-func TestXLSXBinCreation(t *testing.T) {
-    filename := "people.xlsx"
-    NewBin(filename, JobNested{})
-}
 
 
 // }

@@ -13,8 +13,6 @@ type CSVBin struct {
 	FilePath   string
 }
 
-type empty struct {
-}
 
 func tossCSV(w *csv.Writer, input interface{}) {
 	newLine := []string{}
@@ -64,7 +62,7 @@ func (bin *CSVBin) Toss(input interface{}) {
 	t := reflect.TypeOf(input)
 	b := bin.StructType
 
-	switch reflect.ValueOf(input).Kind() {
+	switch t.Kind() {
 	case reflect.Struct:
 		if t == b {
 			tossCSV(w, input)

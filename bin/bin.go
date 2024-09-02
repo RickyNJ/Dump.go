@@ -114,8 +114,10 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		fmt.Printf("created file %v \n", fileName)
         return &XLSXbin{
             StructType: structType,
+            SheetName: structType.Name(),
             Fields: fields,
             FilePath: fileName,
+
         }
 	}
 
