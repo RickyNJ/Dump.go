@@ -77,6 +77,9 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 	fileType := getFileType(fileName)
 	fields := getStructFieldNames(inputStruct)
     fmt.Printf("bintype: %v, extracted fields: %v", fileType, fields)
+    if len(fields) == 0 {
+        panic("the struct has no fields")
+    }
 
 	switch fileType {
 	case "csv":

@@ -13,6 +13,9 @@ type CSVBin struct {
 	FilePath   string
 }
 
+type empty struct {
+}
+
 func tossCSV(w *csv.Writer, input interface{}) {
 	newLine := []string{}
 	var scanInput func(inputStruct interface{})
