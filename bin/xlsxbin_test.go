@@ -1,7 +1,6 @@
 package bin
 
 import (
-	"os"
 	"testing"
 )
 
@@ -34,8 +33,7 @@ func TestGetColumn(t *testing.T) {
 
 
 func TestXLSXBinCreation(t *testing.T) {
-    defer os.Remove("test.xlsx")
-    NewBin("test.XLSX", Person{})
+    NewBin("test.xlsx", Person{})
 }
 
 func TestXLSXBinSingleToss(t *testing.T) {
@@ -43,4 +41,8 @@ func TestXLSXBinSingleToss(t *testing.T) {
     b.Toss(Person{Name: "ricky", Age: 23})
 }
 
-
+func TestXLSXBinMultipleToss(t *testing.T) {
+    b := NewBin("multipletest.xlsx", Person{})
+    b.Toss(Person{Name: "ricky", Age: 23})
+    b.Toss(Person{Name: "ricky", Age: 23})
+}

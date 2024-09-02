@@ -117,7 +117,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
             SheetName: structType.Name(),
             Fields: fields,
             FilePath: fileName,
-
+            Rows: 1,
         }
 	}
 

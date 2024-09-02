@@ -1,9 +1,9 @@
 package bin
 
 import (
+    "strconv"
 	"fmt"
 	"reflect"
-
 	"github.com/xuri/excelize/v2"
 )
 
@@ -12,6 +12,7 @@ type XLSXbin struct {
     SheetName string
     Fields []string
     FilePath string
+    Rows int
 }
 func getColumn(i int) string {
     var result string
@@ -38,22 +39,12 @@ func structToArray(input interface{}) []interface{} {
     return values
 }
 
-func tossXLSX(f *excelize.StreamWriter, input interface{}){
-    // inputstruct := structToArray(input)
-    // w.SetRow("A2", inputstruct) 
-    // fmt.Println(inputstruct...)
-    // w.Flush()
+func tossXLSX(bin *XLSXbin, f *excelize.File, input interface{}){
     inputStruct := structToArray(input)
-    for i:= 0; i < len(inputStruct); i++ {
-        cell := getColumn(i) + "2" 
-        value := inputStruct[i]
-        sheet := reflect.TypeOf(input).Name()
-
-        fmt.Printf("Sheet %v, setting value: %v, in cell: %v \n",sheet,  value, cell)
-        err := f.SetCellValue(sheet, cell, value)
-        if err != nil {
-            fmt.Println(err)
-        }
+    bin.Rows += 1
+    for i := 0; i < len(inputStruct); i++ {
+        cell := getColumn(i) + strconv.Itoa(bin.Rows)
+        f.SetCellValue(bin.SheetName, cell,  inputStruct[i])
     }
     return
 }
@@ -64,27 +55,20 @@ func (bin *XLSXbin) Toss(input interface{}){
     if err != nil {
         fmt.Println(err)
     }
-    fmt.Println(f.GetCellValue("Person", "A1"))
-
-    sw, err := f.NewStreamWriter(bin.SheetName)
-    if err != nil {
-        fmt.Println(err)
-    }
-
-
-
 
     t := reflect.TypeOf(input)
     switch t.Kind() {
     case reflect.Array, reflect.Slice:
         s := reflect.ValueOf(input)
         for i := 0; i < s.Len(); i++ {
-            tossXLSX(f, s.Index(i))
+            tossXLSX(bin, f, s.Index(i))
         }
     case reflect.Struct:
-        tossXLSX(f, input)
+        tossXLSX(bin,f, input)
     } 
+
     f.SaveAs(bin.FilePath)
+    
     return 
 }
 
@@ -101,8 +85,9 @@ func createXLSX(filename string, structname string, fields []string) error{
         fmt.Println(column, fields[i])
         f.SetCellValue(structname, column, fields[i])
     }
-    saveerr := f.SaveAs(filename)
 
-    return saveerr 
+    f.SaveAs(filename)
+    return err 
+
 }
 

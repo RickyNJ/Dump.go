@@ -1,7 +1,10 @@
 package main
 
 import (
-	"github.com/RickyNJ/dump/bin"
+
+    "fmt"
+	// "github.com/RickyNJ/dump/bin"
+	"github.com/xuri/excelize/v2"
 )
 
 type Person struct {
@@ -22,7 +25,7 @@ type Trainer struct {
 }
 
 func main() {
-	ricky := Person{Name: "Ricky", Age: 23}
+	// ricky := Person{Name: "Ricky", Age: 23}
 	// alice := Person{Name: "Alice", Age: 26}
 
     // mimikyu := Pokemon{Name: "Mimikyu", Type: "Ghost/Fairy", weight: 5}
@@ -37,8 +40,41 @@ func main() {
     // csvbin.Toss(trainerRicky)
     // csvbin.Toss([]Trainer{trainerRicky, trainerRicky, trainerAlice})
 
-    xbin := bin.NewBin("Pokemon.xlsx", Person{})
-    xbin.Toss(ricky)
+    // xbin := bin.NewBin("Pokemon.xlsx", Person{})
+    // xbin.Toss(ricky)
 
+
+    f := excelize.NewFile()
+    err := f.SetSheetName("Sheet1", "Person")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    f.SetCellValue("Person", "A1", "Name")
+    f.SetCellValue("Person", "B1", "Age")
+
+    f.SaveAs("person.xlsx")
+    f.Close()
+
+    ff, err := excelize.OpenFile("person.xlsx") 
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    ff.SetCellValue("Person", "A2", "Ricky")
+    ff.SetCellValue("Person", "B2", 12)
+
+    // sw, err := ff.NewStreamWriter("Person")
+    // if err != nil {
+    //     fmt.Println(err)
+    // }
+    // input := []interface{}{"hi", 12}
+    // 
+    // sw.SetRow("A2", input)
+    // sw.Flush()
+
+    ff.SaveAs("person.xlsx")
+    ff.Close()
+    
 }
 
