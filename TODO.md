@@ -1,7 +1,7 @@
 LoadBin:
- - csv: all
+ - csv: works
  - json: all
- - xslx: all
+ - xslx: works
 
 NewBin:
  - csv: DONE (for now)
