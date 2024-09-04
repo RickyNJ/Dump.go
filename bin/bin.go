@@ -1,6 +1,7 @@
 package bin
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"log"
@@ -35,11 +36,9 @@ func getFileType(filename string) string {
 }
 
 func getStructFieldNames[T any](inputStruct T) []string {
-
 	var recursiveSearch func(parentStruct string, input interface{}) []string
 
 	recursiveSearch = func(parentStruct string, input interface{}) []string {
-
 		res := []string{}
 		StructType := reflect.TypeOf(input)
 		structValue := reflect.ValueOf(input)
@@ -87,8 +86,29 @@ func LoadBin[T any](fileName string, inputStruct T) Bin {
 
     switch getFileType(fileName) {
     case "csv":
-        
-        fmt.Print("Loading csv")
+        f, err := os.Open(fileName)
+        if err != nil {
+            panic(err)
+        }
+
+        r := csv.NewReader(f)
+        headers, err := r.Read()
+        if err != nil {
+            panic(err)
+        }
+
+        if !reflect.DeepEqual(fields, headers) {
+            panic("fields and headers are not the same, cannot load bin with this struct")
+        }
+
+        fmt.Println("succes")
+
+        return &CSVBin{
+			StructType: structType,
+			Fields:     fields,
+			FilePath:   fileName,
+        }
+
     case "xlsx":
         fmt.Print("Loading xlsx")
     case "json":
