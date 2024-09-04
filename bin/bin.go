@@ -1,15 +1,12 @@
 package bin
 
 import (
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"strings"
-
-	"github.com/xuri/excelize/v2"
 )
 
 
@@ -69,73 +66,6 @@ func getStructFieldNames[T any](inputStruct T) []string {
 	}
 
 	return recursiveSearch("", inputStruct)
-}
-
-func getHigestRowXLSX(fileName string, structName string) int {
-    f, err := excelize.OpenFile(fileName)
-    if err != nil {
-        panic(err)
-    }
-
-    defer func() {
-        if err := f.Close(); err != nil {
-            panic(err)
-        }
-    }()
-
-    rows, err := f.GetRows(structName)
-    if err != nil {
-        panic(err)
-    }
-
-    return len(rows)
-}
-
-func loadCompatibilityXLSX(fileName string, fields []string, structName string) (bool, error) {
-    f, err := excelize.OpenFile(fileName)
-    if err != nil {
-        return false, err
-    }
-
-    defer func() {
-        if err := f.Close(); err != nil {
-            panic(err)
-        }
-    }()
-
-    rows, err := f.GetRows(structName)
-    headers := rows[0]
-
-    if !reflect.DeepEqual(headers, fields){
-        return false, errors.New("the structfields and xlsx sheet headers are not the same")
-    }
-
-    return true, nil
-}
-
-func loadCompatibilityCSV(fileName string, fields []string) (bool, error) {
-    f, err := os.Open(fileName)
-    if err != nil {
-        return false, err
-    }
-
-    defer func() {
-        if err := f.Close(); err != nil {
-            panic(err)
-        }
-    }()
-
-    r := csv.NewReader(f)
-    headers, err := r.Read()
-    if err != nil {
-        return false, err 
-    }
-
-    if !reflect.DeepEqual(fields, headers) {
-        return false, err
-    }
-    
-    return  true, nil
 }
 
 

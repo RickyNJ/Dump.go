@@ -84,3 +84,28 @@ func createCSV(fileName string, fields []string) error {
 	f.Close()
 	return err
 }
+
+func loadCompatibilityCSV(fileName string, fields []string) (bool, error) {
+    f, err := os.Open(fileName)
+    if err != nil {
+        return false, err
+    }
+
+    defer func() {
+        if err := f.Close(); err != nil {
+            panic(err)
+        }
+    }()
+
+    r := csv.NewReader(f)
+    headers, err := r.Read()
+    if err != nil {
+        return false, err 
+    }
+
+    if !reflect.DeepEqual(fields, headers) {
+        return false, err
+    }
+    
+    return  true, nil
+}
