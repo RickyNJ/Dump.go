@@ -61,7 +61,7 @@ func (bin *XLSXbin) Toss(input interface{}){
     case reflect.Array, reflect.Slice:
         s := reflect.ValueOf(input)
         for i := 0; i < s.Len(); i++ {
-            tossXLSX(bin, f, s.Index(i))
+            tossXLSX(bin, f, s.Index(i).Interface())
         }
     case reflect.Struct:
         tossXLSX(bin,f, input)
