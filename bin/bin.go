@@ -8,6 +8,8 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 
@@ -69,6 +71,75 @@ func getStructFieldNames[T any](inputStruct T) []string {
 	return recursiveSearch("", inputStruct)
 }
 
+func getHigestRowXLSX(fileName string, structName string) int {
+    f, err := excelize.OpenFile(fileName)
+    if err != nil {
+        panic(err)
+    }
+
+    defer func() {
+        if err := f.Close(); err != nil {
+            panic(err)
+        }
+    }()
+
+    rows, err := f.GetRows(structName)
+    if err != nil {
+        panic(err)
+    }
+
+    return len(rows)
+}
+
+func loadCompatibilityXLSX(fileName string, fields []string, structName string) (bool, error) {
+    f, err := excelize.OpenFile(fileName)
+    if err != nil {
+        return false, err
+    }
+
+    defer func() {
+        if err := f.Close(); err != nil {
+            panic(err)
+        }
+    }()
+
+    rows, err := f.GetRows(structName)
+    headers := rows[0]
+
+    if !reflect.DeepEqual(headers, fields){
+        return false, errors.New("the structfields and xlsx sheet headers are not the same")
+    }
+
+    return true, nil
+}
+
+func loadCompatibilityCSV(fileName string, fields []string) (bool, error) {
+    f, err := os.Open(fileName)
+    if err != nil {
+        return false, err
+    }
+
+    defer func() {
+        if err := f.Close(); err != nil {
+            panic(err)
+        }
+    }()
+
+    r := csv.NewReader(f)
+    headers, err := r.Read()
+    if err != nil {
+        return false, err 
+    }
+
+    if !reflect.DeepEqual(fields, headers) {
+        return false, err
+    }
+    
+    return  true, nil
+}
+
+
+
 func LoadBin[T any](fileName string, inputStruct T) Bin {
     if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
         panic("bin does not exist")
@@ -86,31 +157,24 @@ func LoadBin[T any](fileName string, inputStruct T) Bin {
 
     switch getFileType(fileName) {
     case "csv":
-        f, err := os.Open(fileName)
-        if err != nil {
-            panic(err)
-        }
-
-        r := csv.NewReader(f)
-        headers, err := r.Read()
-        if err != nil {
-            panic(err)
-        }
-
-        if !reflect.DeepEqual(fields, headers) {
-            panic("fields and headers are not the same, cannot load bin with this struct")
-        }
-
-        fmt.Println("succes")
-
-        return &CSVBin{
-			StructType: structType,
-			Fields:     fields,
-			FilePath:   fileName,
+        if ok, _ := loadCompatibilityCSV(fileName, fields); ok {
+            return &CSVBin{
+                StructType: structType,
+                Fields:     fields,
+                FilePath:   fileName,
+            }
         }
 
     case "xlsx":
-        fmt.Print("Loading xlsx")
+        if ok, _ := loadCompatibilityXLSX(fileName, fields, structType.Name()); ok {
+            return &XLSXbin{
+                StructType: structType,
+                SheetName: structType.Name(),
+                Fields: fields,
+                FilePath: fileName,
+                Rows: getHigestRowXLSX(fileName, structType.Name()),
+            }
+        }
     case "json":
         fmt.Print("Loading json")
     }

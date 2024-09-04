@@ -1,10 +1,10 @@
 package main
 
 import (
+	// "fmt"
+	// "github.com/xuri/excelize/v2"
 
-    "fmt"
-	// "github.com/RickyNJ/dump/bin"
-	"github.com/xuri/excelize/v2"
+    "github.com/RickyNJ/dump/bin"
 )
 
 type Person struct {
@@ -25,56 +25,23 @@ type Trainer struct {
 }
 
 func main() {
-	// ricky := Person{Name: "Ricky", Age: 23}
-	// alice := Person{Name: "Alice", Age: 26}
+	ricky := Person{Name: "Ricky", Age: 23}
+	alice := Person{Name: "Alice", Age: 26}
 
-    // mimikyu := Pokemon{Name: "Mimikyu", Type: "Ghost/Fairy", weight: 5}
-    // Gengar := Pokemon{Name: "Gengar", Type: "Ghost/Poison", weight: 100}
+    // b := bin.NewBin("person.csv", Person{})
     //
-    // trainerRicky := Trainer{Person: ricky,Pokemon: Gengar, Champion: true}
-    // trainerAlice := Trainer{Person: alice,Pokemon: mimikyu ,Champion: false}
+    // b.Toss(ricky)
+    // b.Toss(alice)
     //
+    // c := bin.LoadBin("person.csv", Person{})
     //
-    // csvbin := bin.NewBin("pokemontrainers.csv", Trainer{})
-    // csvbin.Toss(trainerAlice)
-    // csvbin.Toss(trainerRicky)
-    // csvbin.Toss([]Trainer{trainerRicky, trainerRicky, trainerAlice})
-
-    // xbin := bin.NewBin("Pokemon.xlsx", Person{})
-    // xbin.Toss(ricky)
+    // c.Toss(ricky)
 
 
-    f := excelize.NewFile()
-    err := f.SetSheetName("Sheet1", "Person")
-    if err != nil {
-        fmt.Println(err)
-    }
+    b := bin.LoadBin("person.xlsx", Person{})
 
-    f.SetCellValue("Person", "A1", "Name")
-    f.SetCellValue("Person", "B1", "Age")
+    b.Toss(ricky)
+    b.Toss(alice)
 
-    f.SaveAs("person.xlsx")
-    f.Close()
-
-    ff, err := excelize.OpenFile("person.xlsx") 
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    ff.SetCellValue("Person", "A2", "Ricky")
-    ff.SetCellValue("Person", "B2", 12)
-
-    // sw, err := ff.NewStreamWriter("Person")
-    // if err != nil {
-    //     fmt.Println(err)
-    // }
-    // input := []interface{}{"hi", 12}
-    // 
-    // sw.SetRow("A2", input)
-    // sw.Flush()
-
-    ff.SaveAs("person.xlsx")
-    ff.Close()
-    
 }
 
