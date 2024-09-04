@@ -69,7 +69,6 @@ func getStructFieldNames[T any](inputStruct T) []string {
 }
 
 
-
 func LoadBin[T any](fileName string, inputStruct T) Bin {
     if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
         panic("bin does not exist")

@@ -12,6 +12,11 @@ type Person struct {
 	Age  int
 }
 
+type Worker struct {
+    Company string
+    Person Person
+}
+
 type Pokemon struct {
     Name string
     Type string
@@ -26,7 +31,9 @@ type Trainer struct {
 
 func main() {
 	ricky := Person{Name: "Ricky", Age: 23}
-	alice := Person{Name: "Alice", Age: 26}
+	// alice := Person{Name: "Alice", Age: 26}
+
+    dev := Worker{Company: "vfz", Person: ricky}
 
     // b := bin.NewBin("person.csv", Person{})
     //
@@ -38,10 +45,9 @@ func main() {
     // c.Toss(ricky)
 
 
-    b := bin.LoadBin("person.xlsx", Person{})
+    b := bin.NewBin("person.xlsx", Worker{})
 
-    b.Toss(ricky)
-    b.Toss(alice)
+    b.Toss(dev)
 
 }
 

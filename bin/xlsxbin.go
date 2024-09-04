@@ -32,15 +32,28 @@ func getColumn(i int) string {
 }
 
 func structToArray(input interface{}) []interface{} {
-    v := reflect.ValueOf(input)
-    values := make([]interface{}, v.NumField())
+    var values []interface{}
+    var recursiveToArray func(input interface{})
 
-    for i := 0; i < v.NumField(); i++ {
-        values[i] = v.Field(i).Interface()
+    recursiveToArray = func(input interface{}) {
+        inputType := reflect.TypeOf(input)
+        inputValue := reflect.ValueOf(input)
+
+        for i := 0; i < inputType.NumField(); i++  {
+            fieldValue := inputValue.Field(i)
+
+            if fieldValue.Kind() == reflect.Struct {
+                recursiveToArray(fieldValue.Interface())
+            } else {
+                values = append(values, fieldValue.Interface())
+            }
+
+        }
     }
 
+    recursiveToArray(input)
     return values
-}
+    }
 
 func tossXLSX(bin *XLSXbin, f *excelize.File, input interface{}){
     inputStruct := structToArray(input)
@@ -115,10 +128,11 @@ func loadCompatibilityXLSX(fileName string, fields []string, structName string) 
     return true, nil
 }
 
-func loadCompatibilityCSV(fileName string, fields []string) (bool, error) {
-    f, err := os.Open(fileName)
+
+func getHigestRowXLSX(fileName string, structName string) int {
+    f, err := excelize.OpenFile(fileName)
     if err != nil {
-        return false, err
+        panic(err)
     }
 
     defer func() {
@@ -127,15 +141,11 @@ func loadCompatibilityCSV(fileName string, fields []string) (bool, error) {
         }
     }()
 
-    r := csv.NewReader(f)
-    headers, err := r.Read()
+    rows, err := f.GetRows(structName)
     if err != nil {
-        return false, err 
+        panic(err)
     }
 
-    if !reflect.DeepEqual(fields, headers) {
-        return false, err
-    }
-    
-    return  true, nil
+    return len(rows)
 }
+

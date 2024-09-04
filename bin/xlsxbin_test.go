@@ -1,48 +1,67 @@
 package bin
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestXLSXCreation(t *testing.T){
-    err := createXLSX("test.xlsx", "people", []string{"Name", "Age"}) 
-    if err != nil {
-        panic(err)
-    }
+type TestPerson struct {
+	Name string
+	Age  int
+}
+
+type Employee struct {
+	Company string
+	Person  TestPerson
+}
+
+func TestStructToArray(t *testing.T) {
+	ricky := Employee{Company: "vfz", Person: TestPerson{Name: "Ricky"}}
+	response := structToArray(ricky)
+	if response != nil {
+		fmt.Print(response...)
+	}
+
+}
+
+func TestXLSXCreation(t *testing.T) {
+	err := createXLSX("test.xlsx", "people", []string{"Name", "Age"})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestGetColumn(t *testing.T) {
-    var tests = []struct{
-        a int
-        want string
-    }{
-        {0, "A"},
-        {25, "Z"},
-    }
+	var tests = []struct {
+		a    int
+		want string
+	}{
+		{0, "A"},
+		{25, "Z"},
+	}
 
-    for _, tt := range tests {
-        testname := tt.want
-        t.Run(testname, func(t *testing.T) {
-            ans := getColumn(tt.a)
-            if ans != tt.want {
-                t.Errorf("got %v, want %v", ans, tt.want)
-            }
-        })
-    }
+	for _, tt := range tests {
+		testname := tt.want
+		t.Run(testname, func(t *testing.T) {
+			ans := getColumn(tt.a)
+			if ans != tt.want {
+				t.Errorf("got %v, want %v", ans, tt.want)
+			}
+		})
+	}
 }
 
-
 func TestXLSXBinCreation(t *testing.T) {
-    NewBin("test.xlsx", Person{})
+	NewBin("test.xlsx", Person{})
 }
 
 func TestXLSXBinSingleToss(t *testing.T) {
-    b := NewBin("test.xlsx", Person{})
-    b.Toss(Person{Name: "ricky", Age: 23})
+	b := NewBin("test.xlsx", Person{})
+	b.Toss(Person{Name: "ricky", Age: 23})
 }
 
 func TestXLSXBinMultipleToss(t *testing.T) {
-    b := NewBin("multipletest.xlsx", Person{})
-    b.Toss(Person{Name: "ricky", Age: 23})
-    b.Toss(Person{Name: "ricky", Age: 23})
+	b := NewBin("multipletest.xlsx", Person{})
+	b.Toss(Person{Name: "ricky", Age: 23})
+	b.Toss(Person{Name: "ricky", Age: 23})
 }
