@@ -1,8 +1,10 @@
 package bin
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -68,26 +70,50 @@ func getStructFieldNames[T any](inputStruct T) []string {
 	return recursiveSearch("", inputStruct)
 }
 
+func LoadBin[T any](fileName string, inputStruct T) Bin {
+    if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
+        panic("bin does not exist")
+    }
+
+    structType := reflect.TypeOf(inputStruct)
+    if structType.Kind() != reflect.Struct {
+        panic("input is not a struct")
+    }
+
+    fields := getStructFieldNames(inputStruct) 
+    if len(fields) == 0 {
+        panic("the struct has no fields")
+    }
+
+    switch getFileType(fileName) {
+    case "csv":
+        
+        fmt.Print("Loading csv")
+    case "xlsx":
+        fmt.Print("Loading xlsx")
+    case "json":
+        fmt.Print("Loading json")
+    }
+    return nil
+}
+
 func NewBin[T any](fileName string, inputStruct T) Bin {
 	structType := reflect.TypeOf(inputStruct)
 	if structType.Kind() != reflect.Struct {
 		panic("input is not a struct")
 	}
 
-	fileType := getFileType(fileName)
 	fields := getStructFieldNames(inputStruct)
-    fmt.Printf("bintype: %v, extracted fields: %v", fileType, fields)
     if len(fields) == 0 {
         panic("the struct has no fields")
     }
 
-	switch fileType {
+	switch getFileType(fileName) {
 	case "csv":
 		err := createCSV(fileName, fields)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("created file %v \n", fileName)
 		return &CSVBin{
 			StructType: structType,
 			Fields:     fields,
@@ -99,7 +125,6 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("created file %v \n", fileName)
 		return &JSONBin{
 			StructType: structType,
 			Fields:     fields,
@@ -111,7 +136,6 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
         if err != nil {
             log.Fatal(err)
         }
-		fmt.Printf("created file %v \n", fileName)
         return &XLSXbin{
             StructType: structType,
             SheetName: structType.Name(),
@@ -120,6 +144,5 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
             Rows: 1,
         }
 	}
-
 	return nil 
 }
