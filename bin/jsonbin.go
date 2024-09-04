@@ -17,12 +17,23 @@ type JSONBin struct {
 // json as string, remove last elements write to end of file, write ]}
 
 
+func tossJSON() {
+    return
+}
+
 func (bin *JSONBin) Toss(input interface{}) {
 	f, err := os.OpenFile(bin.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("Couldnt open file")
 	}
+    
+    t := reflect.TypeOf(input)
+    switch t.Kind(){
+    case reflect.Struct:
+        if t == bin.StructType {
 
+        }
+    }
 
 	f.Close()
 }
