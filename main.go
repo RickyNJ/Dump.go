@@ -1,5 +1,4 @@
 package main
-
 import (
 	// "fmt"
 	// "github.com/xuri/excelize/v2"
@@ -33,5 +32,9 @@ func main() {
 
     for i := 0; i < 100; i ++ {
         b.Toss([]Worker{dev, artist})
+    }
+
+    for i := 0; i < 100; i++ {
+        b.Toss(dev)
     }
 }
