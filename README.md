@@ -1,14 +1,15 @@
+<pre>
  ____                                    
 |  _ \ _   _ _ __ ___  _ __   __ _  ___  
 | | | | | | | '_ ` _ \| '_ \ / _` |/ _ \ 
 | |_| | |_| | | | | | | |_) | (_| | (_) |
 |____/ \__,_|_| |_| |_| .__(_)__, |\___/ 
                       |_|    |___/       
-
+</pre>
 # Dump.go
 
 ## Introcuction
-Dump.go is a library written in pure Go and is the easiest way of writing struct instance into a file.
+Dump.go is a library written in pure Go and is the easiest way of writing struct instance into a file. <br>
 It is built on the idea of a "Bin", an object instantiated by linking it to a struct.
 
 ## Basic Usage
@@ -16,7 +17,7 @@ It is built on the idea of a "Bin", an object instantiated by linking it to a st
 ### Installation
 
 ### Initialize bin
-When initializing a bin 
+Initialize a bin with the
 ```
 type Person struct {
   Name string
@@ -32,8 +33,8 @@ people.csv
 | ------------- | ------------- |
 
 ### Toss struct instances to a bin
-The Toss method supports arrays, slices and single instances of a struct.
-Different struct types will result in a panic.
+> [!NOTE]
+> The Toss method supports arrays, slices and single instances of a struct. Different struct types will result in a panic.
 ```
 person1 := Person{Name: "jake", Age: 12}
 person2 := Person{Name: "jakey", Age: 24}
