@@ -78,8 +78,15 @@ func (bin *CSVBin) Toss(input interface{}) {
 
 func createCSV(fileName string, fields []string) error {
 	f, err := os.Create(fileName)
+    if err != nil {
+        panic(err)
+    }
+
 	w := csv.NewWriter(f)
-	w.Write(fields)
+    err := w.Write(fields) 
+    if err != nil {
+        panic(err)
+    }
 	w.Flush()
 	f.Close()
 	return err

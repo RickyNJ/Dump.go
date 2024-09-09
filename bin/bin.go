@@ -21,16 +21,13 @@ func getFileType(filename string) string {
 	if len(filename_slice) <= 1 {
 		return "please add filetype to the filename"
 	}
+    fileType := filename_slice[len(filename_slice)-1]
 
-    switch filename_slice[len(filename_slice)-1] {
-    case "csv":
-        return "csv"
-    case "json":
-        return "json"
-    case "xlsx":
-        return "xlsx"
+    switch fileType {
+    case "csv", "json", "xlsx", "xlsm", "xlam", "xltm", "xltx":
+        return fileType
     }
-
+    
 	return "unsupported"
 }
 
@@ -94,7 +91,7 @@ func LoadBin[T any](fileName string, inputStruct T) Bin {
             }
         }
 
-    case "xlsx":
+    case "xlsx", "xlam", "xlsm", "xltm", "xltx":
         if ok, _ := loadCompatibilityXLSX(fileName, fields, structType.Name()); ok {
             return &XLSXbin{
                 StructType: structType,
@@ -144,7 +141,7 @@ func NewBin[T any](fileName string, inputStruct T) Bin {
 			FilePath:   fileName,
 		}
     
-    case "xlsx":
+    case "xlsx", "xlam", "xlsm", "xltm", "xltx":
         err := createXLSX(fileName, structType.Name(), fields)
         if err != nil {
             log.Fatal(err)
