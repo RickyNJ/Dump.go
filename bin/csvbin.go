@@ -83,7 +83,7 @@ func createCSV(fileName string, fields []string) error {
     }
 
 	w := csv.NewWriter(f)
-    err := w.Write(fields) 
+    err = w.Write(fields) 
     if err != nil {
         panic(err)
     }
