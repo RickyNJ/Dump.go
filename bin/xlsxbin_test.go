@@ -65,3 +65,28 @@ func TestXLSXBinMultipleToss(t *testing.T) {
 	b.Toss(Person{Name: "ricky", Age: 23})
 	b.Toss(Person{Name: "ricky", Age: 23})
 }
+
+func BenchmarkEXCELTossPerLine(b *testing.B) {
+	bin := NewBin("testsingle.xlsx", Person{})
+	ricky := Person{Name: "Ricky", Age: 23}
+
+	b.ResetTimer()
+
+	for i := 0; i < 1000; i++ {
+		bin.Toss(ricky)
+	}
+}
+
+func BenchmarkEXCELTossAsArray(b *testing.B) {
+	bin := NewBin("testingarray.xlsx", Person{})
+	ricky := Person{Name: "Ricky", Age: 23}
+	rickys := make([]Person, 100000)
+
+	for i := 0; i < 100000; i++ {
+		rickys[i] = ricky
+	}
+
+	b.ResetTimer()
+
+	bin.Toss(rickys)
+}

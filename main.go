@@ -31,11 +31,7 @@ func main() {
     b.Toss(dev)
     b.Toss(artist)
 
-    for i := 0; i < 100; i ++ {
+    for i := 0; i < 10; i ++ {
         b.Toss([]Worker{dev, artist})
-    }
-
-    for i := 0; i < 100; i++ {
-        b.Toss(dev)
     }
 }

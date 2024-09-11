@@ -14,6 +14,73 @@ type Bin interface {
 	Toss(input interface{})
 }
 
+type OptFunc func(*Opts)
+
+type Opts struct {
+    id bool
+    timestamp bool
+}
+
+func defaultOpts() Opts {
+    return Opts{
+        id: false,
+        timestamp: false,
+    }
+}
+
+func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
+    options := defaultOpts()
+
+	structType := reflect.TypeOf(inputStruct)
+	if structType.Kind() != reflect.Struct {
+		panic("input is not a struct")
+	}
+
+	fields := getStructFieldNames(inputStruct)
+    if len(fields) == 0 {
+        panic("the struct has no fields")
+    }
+
+	switch getFileType(fileName) {
+	case "csv":
+		err := createCSV(fileName, fields)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return &CSVBin{
+			StructType: structType,
+			Fields:     fields,
+			FilePath:   fileName,
+            Options: options,
+		}
+
+	case "json":
+		err := createJSON(fileName, structType.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+		return &JSONBin{
+			StructType: structType,
+			Fields:     fields,
+			FilePath:   fileName,
+		}
+    
+    case "xlsx", "xlam", "xlsm", "xltm", "xltx":
+        err := createXLSX(fileName, structType.Name(), fields)
+        if err != nil {
+            log.Fatal(err)
+        }
+        return &XLSXbin{
+            StructType: structType,
+            SheetName: structType.Name(),
+            Fields: fields,
+            FilePath: fileName,
+            Rows: 1,
+        }
+	}
+	return nil 
+}
+
 
 func getFileType(filename string) string {
 	filename_slice := strings.Split(filename, ".")
@@ -107,52 +174,4 @@ func LoadBin[T any](fileName string, inputStruct T) Bin {
     return nil
 }
 
-func NewBin[T any](fileName string, inputStruct T) Bin {
-	structType := reflect.TypeOf(inputStruct)
-	if structType.Kind() != reflect.Struct {
-		panic("input is not a struct")
-	}
 
-	fields := getStructFieldNames(inputStruct)
-    if len(fields) == 0 {
-        panic("the struct has no fields")
-    }
-
-	switch getFileType(fileName) {
-	case "csv":
-		err := createCSV(fileName, fields)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return &CSVBin{
-			StructType: structType,
-			Fields:     fields,
-			FilePath:   fileName,
-		}
-
-	case "json":
-		err := createJSON(fileName, structType.Name())
-		if err != nil {
-			log.Fatal(err)
-		}
-		return &JSONBin{
-			StructType: structType,
-			Fields:     fields,
-			FilePath:   fileName,
-		}
-    
-    case "xlsx", "xlam", "xlsm", "xltm", "xltx":
-        err := createXLSX(fileName, structType.Name(), fields)
-        if err != nil {
-            log.Fatal(err)
-        }
-        return &XLSXbin{
-            StructType: structType,
-            SheetName: structType.Name(),
-            Fields: fields,
-            FilePath: fileName,
-            Rows: 1,
-        }
-	}
-	return nil 
-}

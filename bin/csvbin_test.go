@@ -118,8 +118,35 @@ func TestCSVTossNested(t *testing.T){
 	if err != nil {
 		t.Errorf("Couldnt read file %v", err)
 	}
+
+    
     want := [][]string{{"Person:Name", "Person:Age", "Company"}, {"ricky", "23", "vfz"}}
 	if !reflect.DeepEqual(lines, want) {
 		t.Fatalf("%v and %v are not equal", lines, want)
 	}
+}
+
+func BenchmarkTossPerLine(b *testing.B) {
+    bin := NewBin("testsingle.csv", Person{})
+    ricky := Person{Name: "Ricky", Age: 23}
+
+    b.ResetTimer()
+
+    for i := 0; i < 10000; i++ {
+        bin.Toss(ricky)
+    }
+}
+
+func BenchmarkTossAsArray(b *testing.B) {
+    bin := NewBin("testingarray.csv", Person{})
+    ricky := Person{Name: "Ricky", Age: 23}
+    rickys := make([]Person, 10000)
+
+    for i := 0; i < 10000; i++ {
+        rickys[i] = ricky
+    }
+
+    b.ResetTimer()
+
+    bin.Toss(rickys)
 }

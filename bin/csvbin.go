@@ -11,6 +11,7 @@ type CSVBin struct {
 	StructType reflect.Type
 	Fields     []string
 	FilePath   string
+    Options    Opts 
 }
 
 
