@@ -1,8 +1,5 @@
 package main
 import (
-	// "fmt"
-	// "github.com/xuri/excelize/v2"
-
     "github.com/RickyNJ/dump/bin"
 )
 
@@ -15,6 +12,10 @@ type Worker struct {
     Company string
     Person Person
 }
+
+/*
+	For now this is just a quick demo on how you can use dump.go to save nested struct data into an excel file
+*/
 
 func main() {
 	ricky := Person{Name: "Ricky", Age: 23}
