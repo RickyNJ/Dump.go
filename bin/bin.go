@@ -67,6 +67,7 @@ func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
             Fields: fields,
             FilePath: fileName,
             Rows: 1,
+            Options: options,
         }
 	}
 	return nil 

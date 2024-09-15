@@ -1,13 +1,13 @@
 package bin
 
 import (
-    "strconv"
-    "fmt"
-    "reflect"
-    "errors"
+	"errors"
+	"fmt"
+	"reflect"
+	"strconv"
+	"time"
 
-
-    "github.com/xuri/excelize/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 type XLSXbin struct {
@@ -16,6 +16,7 @@ type XLSXbin struct {
     Fields []string
     FilePath string
     Rows int
+    Options Opts
 }
 
 
@@ -33,8 +34,13 @@ func getColumn(i int) string {
     return result
 }
 
-func structToArray(input interface{}) []interface{} {
+func structToArray(input interface{}, options Opts) []interface{} {
     var values []interface{}
+    
+    if options.timestamp == true {
+        values = append(values, time.Now().Format(time.StampMilli))
+    }
+
     var recursiveToArray func(input interface{})
 
     recursiveToArray = func(input interface{}) {
@@ -58,7 +64,7 @@ func structToArray(input interface{}) []interface{} {
     }
 
 func tossXLSX(bin *XLSXbin, f *excelize.File, input interface{}){
-    inputStruct := structToArray(input)
+    inputStruct := structToArray(input, bin.Options)
     bin.Rows += 1
     for i := 0; i < len(inputStruct); i++ {
         cell := getColumn(i) + strconv.Itoa(bin.Rows)

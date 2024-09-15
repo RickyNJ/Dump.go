@@ -29,7 +29,7 @@ func main() {
 	// alice := Person{Name: "Alice", Age: 26}
 	// artist := Worker{Company: "Olsam", Person: alice}
 
-	b := bin.NewBin("test.csv", Worker{})
+	b := bin.NewBin("test.xlsx", Worker{})
 
     start := time.Now()
     for i := 0; i < 1000; i ++ {
