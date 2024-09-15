@@ -17,17 +17,14 @@ type Bin interface {
 type OptFunc func(*Opts)
 
 type Opts struct {
-    id bool
     timestamp bool
 }
 
 func defaultOpts() Opts {
     return Opts{
-        id: false,
-        timestamp: false,
+        timestamp: true,
     }
 }
-
 
 func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
     options := defaultOpts()
@@ -40,6 +37,10 @@ func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
 	fields := getStructFieldNames(inputStruct)
     if len(fields) == 0 {
         panic("the struct has no fields")
+    }
+
+    if options.timestamp == true {
+        fields = append([]string{"timestamp"}, fields...)
     }
 
 	switch getFileType(fileName) {

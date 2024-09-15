@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"time"
 )
 
 type CSVBin struct {
@@ -15,8 +16,13 @@ type CSVBin struct {
 }
 
 
-func tossCSV(w *csv.Writer, input interface{}) {
+func tossCSV(w *csv.Writer, input interface{}, options Opts) {
 	newLine := []string{}
+
+    if options.timestamp == true {
+        newLine = append(newLine, time.Now().Format(time.StampMilli))
+    }
+
 	var scanInput func(inputStruct interface{})
 
 	scanInput = func(inputStruct interface{}) {
@@ -66,12 +72,12 @@ func (bin *CSVBin) Toss(input interface{}) {
 	switch t.Kind() {
 	case reflect.Struct:
 		if t == b {
-			tossCSV(w, input)
+			tossCSV(w, input, bin.Options)
 		}
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(input)
 		for i := 0; i < s.Len(); i++ {
-			tossCSV(w, s.Index(i).Interface())
+			tossCSV(w, s.Index(i).Interface(), bin.Options)
 		}
 	}
 	w.Flush()

@@ -27,48 +27,10 @@ type JobNested struct {
 
 
 func TestJSONBinCreation(t *testing.T) {
+    
 	filename := "people.json"
 	NewBin(filename, Person{})
 }
-
-
-
-// }
-//
-// func TestStructWithInt(t *testing.T) {
-//     b := NewBin("people.csv", Person{})
-//
-//     b.Toss(Person{Name: "Ricky", Age: 12})
-//
-//     personlist := []Person{
-//         {Name: "ln", Age: 34},
-//         {Name: "a;lskjdf", Age: 3244},
-//         {Name: "fsdf", Age: 234},
-//         {Name: "3254", Age: 1244},
-//         {Name: "324n", Age: 32},
-//         {Name: "ladsfklajshfn", Age: 4},
-//     }
-//
-//     b.Toss(personlist)
-//     b.Toss(personlist)
-//
-//     b.Toss(Person{Name: "Alice", Age: 26})
-// }
-//
-//
-// func TestPrintNamesPerson(t *testing.T) {
-//     p, _ := initTests()
-//
-// 	// test := Person{Name: "Ricky", Age: 23}
-// 	want := []string{"Name", "Age"}
-//
-// 	ans := getStructFieldNames(p)
-// 	if !reflect.DeepEqual(ans, want) {
-// 		t.Fatalf("oh oh")
-// 	}
-// }
-//
-//
 func TestUnsupportedFileTypes (t *testing.T) {
     if getFileType("hai.db") != "unsupported" {
         t.Fatalf("not unsupported")

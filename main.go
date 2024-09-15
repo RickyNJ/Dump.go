@@ -1,6 +1,10 @@
 package main
+
 import (
-    "github.com/RickyNJ/dump/bin"
+	"log"
+	"time"
+
+	"github.com/RickyNJ/dump/bin"
 )
 
 type Person struct {
@@ -9,29 +13,29 @@ type Person struct {
 }
 
 type Worker struct {
-    Company string
-    Person Person
+	Company string
+	Person  Person
 }
 
 /*
-	For now this is just a quick demo on how you can use dump.go to save nested struct data into an excel file
+For now this is just a quick demo on how you can use dump.go to save nested struct data into an excel file
 */
 
 func main() {
-	ricky := Person{Name: "Ricky", Age: 23}
-	alice := Person{Name: "Alice", Age: 26}
-
-    dev := Worker{Company: "vfz", Person: ricky}
-    artist := Worker{Company: "Olsam", Person: alice}
-
-
-    b := bin.LoadBin("data/demo.xlsx", Worker{})
     
+	ricky := Person{Name: "Ricky", Age: 23}
+	dev := Worker{Company: "vfz", Person: ricky}
 
-    b.Toss(dev)
-    b.Toss(artist)
+	// alice := Person{Name: "Alice", Age: 26}
+	// artist := Worker{Company: "Olsam", Person: alice}
 
-    for i := 0; i < 10; i ++ {
-        b.Toss([]Worker{dev, artist})
+	b := bin.NewBin("test.csv", Worker{})
+
+    start := time.Now()
+    for i := 0; i < 1000; i ++ {
+        b.Toss(dev)
     }
+    elapsed := time.Since(start)
+
+    log.Printf("Took %s", elapsed)
 }
