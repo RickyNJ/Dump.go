@@ -28,6 +28,7 @@ func defaultOpts() Opts {
     }
 }
 
+
 func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
     options := defaultOpts()
 
@@ -52,17 +53,6 @@ func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
 			Fields:     fields,
 			FilePath:   fileName,
             Options: options,
-		}
-
-	case "json":
-		err := createJSON(fileName, structType.Name())
-		if err != nil {
-			log.Fatal(err)
-		}
-		return &JSONBin{
-			StructType: structType,
-			Fields:     fields,
-			FilePath:   fileName,
 		}
     
     case "xlsx", "xlam", "xlsm", "xltm", "xltx":
@@ -91,7 +81,7 @@ func getFileType(filename string) string {
     fileType := filename_slice[len(filename_slice)-1]
 
     switch fileType {
-    case "csv", "json", "xlsx", "xlsm", "xlam", "xltm", "xltx":
+    case "csv", "xlsx", "xlsm", "xlam", "xltm", "xltx":
         return fileType
     }
     
@@ -168,10 +158,6 @@ func LoadBin[T any](fileName string, inputStruct T) Bin {
                 Rows: getHigestRowXLSX(fileName, structType.Name()),
             }
         }
-    case "json":
-        fmt.Print("Loading json")
     }
     return nil
 }
-
-
