@@ -40,7 +40,7 @@ func NewBin[T any](fileName string, inputStruct T, opts ...OptFunc) Bin {
     }
 
     if options.timestamp == true {
-        fields = append([]string{"timestamp"}, fields...)
+        fields = append([]string{"Timestamp"}, fields...)
     }
 
 	switch getFileType(fileName) {
@@ -116,7 +116,6 @@ func getStructFieldNames[T any](inputStruct T) []string {
 			} else {
 				res = append(res, fieldName)
 			}
-			fmt.Printf("%v with type %v \n\n", field.Name, field.Type.Kind())
 		}
 		return res
 	}
@@ -127,12 +126,12 @@ func getStructFieldNames[T any](inputStruct T) []string {
 
 func LoadBin[T any](fileName string, inputStruct T) Bin {
     if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
-        panic("bin does not exist")
+        panic("Could not find bin to load.")
     }
 
     structType := reflect.TypeOf(inputStruct)
     if structType.Kind() != reflect.Struct {
-        panic("input is not a struct")
+        panic("Input is not a struct.")
     }
 
     fields := getStructFieldNames(inputStruct) 
