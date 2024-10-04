@@ -6,6 +6,8 @@ import (
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
 type CSVBin struct {
@@ -16,11 +18,10 @@ type CSVBin struct {
 }
 
 
-func tossCSV(w *csv.Writer, input interface{}, options Opts) {
+func tossCSV(w *csv.Writer, input interface{}, extras []string) {
 	newLine := []string{}
-
-    if options.timestamp == true {
-        newLine = append(newLine, time.Now().Format(time.StampMilli))
+    for i := 0; i < len(extras); i++ {
+        newLine = append(newLine, extras[i])
     }
 
 	var scanInput func(inputStruct interface{})
@@ -69,15 +70,22 @@ func (bin *CSVBin) Toss(input interface{}) {
 	t := reflect.TypeOf(input)
 	b := bin.StructType
 
+    extras := []string{}
+
+    if bin.Options.timestamp == true {
+        timestring := time.Now().Format(time.StampMilli)
+        extras = append(extras, timestring)
+    }
+
 	switch t.Kind() {
 	case reflect.Struct:
 		if t == b {
-			tossCSV(w, input, bin.Options)
+			tossCSV(w, input, extras) 
 		}
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(input)
 		for i := 0; i < s.Len(); i++ {
-			tossCSV(w, s.Index(i).Interface(), bin.Options)
+			tossCSV(w, s.Index(i).Interface(), extras)
 		}
 	}
 	w.Flush()
