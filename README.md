@@ -11,11 +11,10 @@ THIS PROJECT IS A WIP
 # Dump.go
 
 ## Introduction
-Dump.go is a library written in pure Go and is the easiest way of writing struct instance into a file. <br>
-It is built on the idea of a "Bin", an object instantiated by linking it to a struct. The bin object has a single Toss method which can be used to write single or multiple instances of the struct into a file. Currently dump.go supports the following file types:
+Dump.go is a library written in pure Go for writing sequential struct instances into csv or excel files <br>
+It is built on the idea of a "Bin", an object instantiated by linking it to a struct. The bin object has a single Toss() method which can be used to write either single or multiple instances of the struct into a file. Currently dump.go supports the following file types:
 - csv
 - Microsoft Excel (xlsx, xlam, xlsm, xltm, xltx)
-- json
   
 ## Basic Usage
 
